@@ -1,17 +1,33 @@
-/*
- * Buffer.h
- *
- *  Created on: Sep 26, 2012
- *      Author: knad0001
- */
+#ifndef BUFFER_H
+#define BUFFER_H
 
-#ifndef BUFFER_H_
-#define BUFFER_H_
+#include <fstream>
+#include <string>
+
 
 class Buffer {
+private:
+	const static int BUFFER_SIZE = 4096;
+	char* start;
+	char* end;
+	char* next;
+
+	std::ifstream source;
+
+	void read_next_chunk();
+	void read_previous_chunk();
+
 public:
-	Buffer();
-	virtual ~Buffer();
+	explicit Buffer(const char* file);
+	~Buffer();
+
+	Buffer(const Buffer& source) = delete;
+	Buffer(const Buffer&& source) = delete;
+	Buffer& operator=(const Buffer& source) = delete;
+	Buffer& operator=(const Buffer&& source) = delete;
+
+	char get();
+	char unget();
 };
 
-#endif /* BUFFER_H_ */
+#endif /* BUFFER_H */
