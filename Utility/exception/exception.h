@@ -18,5 +18,14 @@ public:
 	explicit BufferBoundsExceededException(const std::string& description) : ParserException(description) {}
 };
 
+class TransitionCharacterProcessingException : public ParserException {
+public:
+	explicit TransitionCharacterProcessingException(const std::string& description) : ParserException(description) {}
+};
+
+class UncoveredCharClassException : public ParserException {
+public:
+	explicit UncoveredCharClassException(const std::string& description) : ParserException(description) {}
+};
 #endif /* EXCEPTION_H */
 
