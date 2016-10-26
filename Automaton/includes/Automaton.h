@@ -5,8 +5,8 @@
  *      Author: knad0001
  */
 
-#ifndef Automaton_H_
-#define Automaton_H_
+#ifndef AUTOMATON_H
+#define AUTOMATON_H
 
 class Automaton {
 public:
@@ -15,6 +15,7 @@ public:
 class State {
 private:
 	 //Vektor
+
 };
 
 class Transition {
