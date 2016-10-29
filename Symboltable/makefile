@@ -48,8 +48,38 @@ OBJS = $(OBJDIR)/Symboltable.o \
 
 # Variante mit guten Makefile-Kenntnissen
 
-makeTestSymboltable: SymboltableTarget TestSymboltableTarget
+#makeTestSymboltable: SymboltableTarget TestSymboltableTarget
+#	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
+
+makeTestSymboltable:
+	# alte Dateien löschen
+	rm -rf $(OBJDIR)/*.o
+	rm -rf $(BINDIRTEST)/*
+	
+	# nacheinander bauen
+	$(MAKE) Key
+	$(MAKE) Information
+	$(MAKE) SymboltableEntry
+	$(MAKE) LinkedList
+	$(MAKE) Symboltable
+	$(MAKE) TestSymboltableTarget
+	
+	# ausführbare Testdatei erstellen
 	g++ -g $(OBJDIR)/*.o $(BINDIRTEST)/TestSymboltable.o  -o $(BINDIRTEST)/SymboltableTest
+	
+	
+makeSymboltable:
+	# alte Dateien löschen
+	rm -rf $(OBJDIR)/*.o
+	rm -rf $(BINDIRTEST)/*
+	
+	# nacheinander bauen
+	$(MAKE) Key
+	$(MAKE) Information
+	$(MAKE) SymboltableEntry
+	$(MAKE) LinkedList
+	$(MAKE) Symboltable
+
 
 SymboltableTarget: $(OBJS)
 
@@ -62,14 +92,27 @@ $(OBJDIR)/%.o :  $(SRCDIR)/%.cpp $(HEADERDIR)/%.h
 	g++ -g  -c -Wall  $<  -o $@
 
 
+	
+Key: $(SRCDIR)/Key.cpp $(HEADERDIR)/Key.h
+	g++ -g  -c -Wall $(SRCDIR)/Key.cpp -o $(OBJDIR)/Key.o  
+	
+Information: $(SRCDIR)/Information.cpp $(HEADERDIR)/Information.h
+	g++ -g  -c -Wall $(SRCDIR)/Information.cpp -o $(OBJDIR)/Information.o  
+	
+SymboltableEntry: $(SRCDIR)/SymboltableEntry.cpp $(HEADERDIR)/SymboltableEntry.h
+	g++ -g  -c -Wall $(SRCDIR)/SymboltableEntry.cpp -o $(OBJDIR)/SymboltableEntry.o  	
 
+LinkedList: $(SRCDIR)/LinkedList.cpp $(HEADERDIR)/LinkedList.h
+	g++ -g  -c -Wall $(SRCDIR)/LinkedList.cpp -o $(OBJDIR)/LinkedList.o 	
+	
+Symboltable: $(SRCDIR)/Symboltable.cpp $(HEADERDIR)/Symboltable.h
+	g++ -g  -c -Wall $(SRCDIR)/Symboltable.cpp -o $(OBJDIR)/Symboltable.o 
+		
 TestSymboltableTarget: $(SRCDIR)/TestSymboltable.cpp $(HEADERDIR)/Symboltable.h
 	g++ -g  -c -Wall $(SRCDIR)/TestSymboltable.cpp -o $(BINDIRTEST)/TestSymboltable.o  
 	
 
-
 # loeschen aller files im verzeichnis $(OBJDIR) und $(BINDIRTEST) und neu compilieren
-
 cleanSymboltable:
 	rm -rf $(OBJDIR)/*.o
 	rm -rf $(BINDIRTEST)/*
