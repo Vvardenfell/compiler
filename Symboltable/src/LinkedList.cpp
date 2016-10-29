@@ -12,13 +12,8 @@
 /*
  * Creates a new linked list and sets its size to zero.
  */
-LinkedList::LinkedList() {
-	this->size = 0;
-}
+LinkedList::LinkedList() : size(0) {}
 
-LinkedList::~LinkedList() {
-
-}
 
 /*
  * Creates a new entry for a given lexem and adds it to the list.
@@ -26,23 +21,20 @@ LinkedList::~LinkedList() {
  * @param lexem the lexem to be added
  * @param length the length of the lexem
  */
-void LinkedList::add(char* lexem, int length) {
+void LinkedList::add(const char* lexem, std::size_t length) {
 	SymboltableEntry* entry = new SymboltableEntry(lexem, length);
 
 	//checks if the list is empty
-	if (!this->firstEntry) {
-		this->firstEntry = entry;
-		this->lastEntry = entry;
-
-		this->size++;
+	if (!this->first_entry) {
+		this->first_entry = entry;
 	}
 	//adds the entry to the end of the list
 	else {
-		this->lastEntry->setNext(entry);
-		this->lastEntry = entry;
-
-		this->size++;
+		this->last_entry->set_next(entry);
 	}
+
+	this->last_entry = entry;
+	this->size++;
 }
 
 /*
@@ -50,7 +42,7 @@ void LinkedList::add(char* lexem, int length) {
  *
  * @return returns the size of the list
  */
-int LinkedList::getSize() {
+std::size_t LinkedList::get_size() const {
 	return this->size;
 }
 
@@ -60,16 +52,16 @@ int LinkedList::getSize() {
  * @param lexem the lexem to lookup
  * @return returns the entry of the linked list storing the lexem or NULL otherwise
  */
-SymboltableEntry* LinkedList::lookupEntry(char* lexem) {
-	SymboltableEntry* entry = this->firstEntry;
+SymboltableEntry* LinkedList::lookup_entry(const char* lexem) {
+	SymboltableEntry* entry = this->first_entry;
 
-	while (entry != NULL) {
-		if (entry->getEntryInformation()->compareLexem(lexem)) {
+	while (entry) {
+		if (entry->get_entry_information()->compare_lexem(lexem)) {
 			return entry;
 		}
 		else {
-			entry = entry->getNext();
+			entry = entry->get_next();
 		}
 	}
-	return NULL;
+	return nullptr;
 }

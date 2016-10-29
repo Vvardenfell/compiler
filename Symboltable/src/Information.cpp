@@ -13,14 +13,8 @@
  * @param lexem the lexem to be stored
  * @param length the size of the lexem
  */
-Information::Information(char* lexem, int length) {
-	this->lexem = lexem;
-	this->size = length;
+Information::Information(const char* lexem, std::size_t length) : lexem(lexem), size(length) {
 	//TODO: Token-Typ speichern?
-}
-
-Information::~Information() {
-
 }
 
 /*
@@ -29,8 +23,8 @@ Information::~Information() {
  * @param lexem the lexem to be compared
  * @return returns true if the two lexems are identical and false otherwise
  */
-bool Information::compareLexem(char* lexem) {
-	int i = 0;
+bool Information::compare_lexem(const char* lexem) const {
+	std::size_t i = 0;
 
 	while (lexem[i] != '\0' && this->lexem[i] != '\0') {
 		if (lexem[i] == this->lexem[i]) {
@@ -49,7 +43,7 @@ bool Information::compareLexem(char* lexem) {
  *
  * @return returns the name
  */
-char* Information::getName() {
+const char* Information::get_name() const {
 	return this->lexem;
 }
 
@@ -58,6 +52,6 @@ char* Information::getName() {
  *
  * @return returns the size
  */
-int Information::getSize() {
+std::size_t Information::get_size() const {
 	return this->size;
 }

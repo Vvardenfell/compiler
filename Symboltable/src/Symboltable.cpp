@@ -16,23 +16,20 @@
  */
 Symboltable::Symboltable() {
 	//the size of the table should be a prime number
-	this->tableLength = 503;
+	this->table_length = 503;
 
 	//create an array of linked lists
-	this->arrayOfLinkedLists = new LinkedList*[this->tableLength];
+	this->array_of_linked_lists = new LinkedList*[this->table_length];
 
 	//create a new linked list for every single index
-	for (int i = 0; i < this->tableLength; i++) {
-		this->arrayOfLinkedLists[i] = new LinkedList();
+	for (std::size_t i = 0; i < this->table_length; i++) {
+		this->array_of_linked_lists[i] = new LinkedList();
 	}
 
 	//initialize predefined symbols to the table
-	this->initSymbols();
+	this->init_symbols();
 }
 
-Symboltable::~Symboltable() {
-
-}
 
 /*
  * Inserts a given lexem to the symbol table and returns the key of it.
@@ -40,16 +37,16 @@ Symboltable::~Symboltable() {
  * @param lexem the lexem to be inserted
  * @return returns the key to the inserted lexem
  */
-Key* Symboltable::insert(char* lexem) {
-	int size = this->determineSize(lexem);
-	Key* index = new Key(this->hash(lexem, size));
+Key Symboltable::insert(const char* lexem) {
+	std::size_t size = this->determine_size(lexem);
+	Key index(Symboltable::hash(lexem, size));
 
 	// checks if the lexem to be inserted already exists
-	if (this->lookup(index, lexem) != NULL) {
+	if (this->lookup(index, lexem)) {
 		return index;
 	}
 
-	this->arrayOfLinkedLists[index->getKey()]->add(lexem, size);
+	this->array_of_linked_lists[index.get_key()]->add(lexem, size);
 
 	return index;
 }
@@ -62,16 +59,16 @@ Key* Symboltable::insert(char* lexem) {
  * @param lexem the lexem to the key to look up
  * @return the information corresponding to the given key and lexem or NULL if no such was found
  */
-Information* Symboltable::lookup(Key* key, char* lexem) {
-	unsigned int index = key->getKey();
-	SymboltableEntry* entry = this->arrayOfLinkedLists[index]->lookupEntry(lexem);
+const Information* Symboltable::lookup(const Key& key, const char* lexem) const {
+	unsigned int index = key.get_key();
+	SymboltableEntry* entry = this->array_of_linked_lists[index]->lookup_entry(lexem);
 
 	//checks if entry is null
 	if (entry) {
-		return entry->getEntryInformation();
+		return entry->get_entry_information();
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -84,7 +81,7 @@ Information* Symboltable::lookup(Key* key, char* lexem) {
  * @return returns a hash as unsigned integer, that represents an index in the symbol table
  *
  */
-unsigned int Symboltable::hash(char* lexem, unsigned int size) {
+unsigned int Symboltable::hash(const char* lexem, std::size_t size) const {
 	unsigned int hash = 0;
 	unsigned int i = 0;
 
@@ -93,14 +90,14 @@ unsigned int Symboltable::hash(char* lexem, unsigned int size) {
 		hash = (lexem[i]) + (hash << 6) + (hash << 16) - hash;
 	}
 
-	return hash % this->tableLength;
+	return hash % this->table_length;
 
 }
 
 /*
  * Initializes the Symboltable with some keywords.
  */
-void Symboltable::initSymbols() {
+void Symboltable::init_symbols() {
 
 	this->insert("while");
 	this->insert("WHILE");
@@ -114,8 +111,8 @@ void Symboltable::initSymbols() {
  * @param lexem the lexem to determine the size for
  * @return returns the size of the lexem
  */
-unsigned int Symboltable::determineSize(char* lexem) {
-	int size = 0;
+std::size_t Symboltable::determine_size(const char* lexem) const {
+	std::size_t size = 0;
 
 	while (*lexem != '\0') {
 		lexem++;
@@ -130,8 +127,8 @@ unsigned int Symboltable::determineSize(char* lexem) {
  *
  * @return returns the size
  */
-int Symboltable::getSize() {
-	return this->tableLength;
+std::size_t Symboltable::get_size() const {
+	return this->table_length;
 }
 
 /*
@@ -139,6 +136,6 @@ int Symboltable::getSize() {
  *
  * @return returns the array
  */
-LinkedList** Symboltable::getArray() {
-	return this->arrayOfLinkedLists;
+const LinkedList* const * Symboltable::get_array() const {
+	return this->array_of_linked_lists;
 }

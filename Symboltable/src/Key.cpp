@@ -12,20 +12,15 @@
  *
  * @param the key to be stored
  */
-Key::Key(unsigned int key) {
-	this->key = key;
-}
+Key::Key(unsigned int key) : key(key) {}
 
-Key::~Key() {
-
-}
 
 /*
  * Gets the key.
  *
  * @return the key as unsigned integer
  */
-unsigned int Key::getKey() {
+unsigned int Key::get_key() const {
 	return this->key;
 }
 

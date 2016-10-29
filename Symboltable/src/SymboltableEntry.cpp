@@ -14,20 +14,15 @@
  * @param name the entry to be created
  * @param length the length of the lexem (without '\0’)
  */
-SymboltableEntry::SymboltableEntry(char* lexem, int length) {
-	info = new Information(lexem, length);
-}
+SymboltableEntry::SymboltableEntry(const char* lexem, std::size_t length) : info(new Information(lexem, length)) {}
 
-SymboltableEntry::~SymboltableEntry() {
-
-}
 
 /*
  * Sets the following entry to the current in the linked list.
  *
  * @param entry the entry to be set as next entry
  */
-void SymboltableEntry::setNext(SymboltableEntry* entry) {
+void SymboltableEntry::set_next(SymboltableEntry* entry) {
 	this->next = entry;
 }
 
@@ -36,7 +31,7 @@ void SymboltableEntry::setNext(SymboltableEntry* entry) {
  *
  * @return returns the entry information
  */
-Information* SymboltableEntry::getEntryInformation() {
+const Information* SymboltableEntry::get_entry_information() const {
 	return this->info;
 }
 
@@ -45,7 +40,7 @@ Information* SymboltableEntry::getEntryInformation() {
  *
  * @return returns the following entry
  */
-SymboltableEntry* SymboltableEntry::getNext() {
+SymboltableEntry* SymboltableEntry::get_next() const {
 	return this->next;
 }
 

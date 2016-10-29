@@ -5,25 +5,24 @@
  *      Author: lara
  */
 
-#ifndef SYMBOLTABLE_SRC_LINKEDLIST_H_
-#define SYMBOLTABLE_SRC_LINKEDLIST_H_
+#ifndef LINKEDLIST_H
+#define LINKEDLIST_H
 
 #include "../includes/SymboltableEntry.h"
 #include <cstddef>
 
 class LinkedList {
 private:
-	SymboltableEntry* firstEntry = NULL;
-	SymboltableEntry* lastEntry = NULL;
-	int size;
+	SymboltableEntry* first_entry = nullptr;
+	SymboltableEntry* last_entry = nullptr;
+	std::size_t size;
 
 public:
 	LinkedList();
-	virtual ~LinkedList();
 
-	void add(char* lexem, int length);
-	int getSize();
-	SymboltableEntry* lookupEntry(char* lexem);
+	void add(const char* lexem, std::size_t length);
+	std::size_t get_size() const;
+	SymboltableEntry* lookup_entry(const char* lexem);
 };
 
-#endif /* SYMBOLTABLE_SRC_LINKEDLIST_H_ */
+#endif /* LINKEDLIST_H */

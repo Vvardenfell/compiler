@@ -5,21 +5,22 @@
  *      Author: lara
  */
 
-#ifndef SYMBOLTABLE_SRC_INFORMATION_H_
-#define SYMBOLTABLE_SRC_INFORMATION_H_
+#ifndef INFORMATION_H
+#define INFORMATION_H
+
+#include <cstddef>
 
 class Information {
 private:
-	char* lexem;
-	int size;
+	const char* lexem;
+	const std::size_t size;
 
 public:
-	Information(char* lexem, int length);
-	virtual ~Information();
+	Information(const char* lexem, std::size_t length);
 
-	bool compareLexem(char* lexem);
-	char* getName();
-	int getSize();
+	bool compare_lexem(const char* lexem) const;
+	const char* get_name() const;
+	std::size_t get_size() const;
 };
 
-#endif /* SYMBOLTABLE_SRC_INFORMATION_H_ */
+#endif /* INFORMATION_H */

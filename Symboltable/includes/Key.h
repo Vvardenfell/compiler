@@ -5,16 +5,15 @@
  *      Author: lara
  */
 
-#ifndef SYMBOLTABLE_SRC_KEY_H_
-#define SYMBOLTABLE_SRC_KEY_H_
+#ifndef KEY_H
+#define KEY_H
 
 class Key {
 private:
-	unsigned int key;
+	const unsigned int key;
 public:
 	Key(unsigned int key);
-	virtual ~Key();
-	unsigned int getKey();
+	unsigned int get_key() const;
 };
 
-#endif /* SYMBOLTABLE_SRC_KEY_H_ */
+#endif /* KEY_H */

@@ -5,8 +5,8 @@
  *      Author: knad0001
  */
 
-#ifndef SYMBOLTABLE_H_
-#define SYMBOLTABLE_H_
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
 
 #include "../includes/Information.h"
 #include "../includes/LinkedList.h"
@@ -14,20 +14,19 @@
 
 class Symboltable {
 private:
-	int tableLength;
-	LinkedList** arrayOfLinkedLists;
+	std::size_t table_length;
+	LinkedList** array_of_linked_lists;
 
 public:
 	Symboltable();
-	virtual ~Symboltable();
 
-	Information* lookup(Key* key, char* lexem);
-	Key* insert(char* lexem);
-	unsigned int hash(char* lexem, unsigned int size);
-	void initSymbols();
-	unsigned int determineSize(char* lexem);
-	int getSize();
-	LinkedList** getArray();
+	const Information* lookup(const Key& key, const char* lexem) const;
+	Key insert(const char* lexem);
+	void init_symbols();
+	unsigned int hash(const char* lexem, std::size_t size) const;
+	std::size_t determine_size(const char* lexem) const;
+	std::size_t get_size() const;
+	const LinkedList* const * get_array() const;
 };
 
-#endif /* SYMBOLTABLE_H_ */
+#endif /* SYMBOLTABLE_H */

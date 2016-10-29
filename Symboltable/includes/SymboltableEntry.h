@@ -5,25 +5,24 @@
  *      Author: lara
  */
 
-#ifndef SYMBOLTABLE_SRC_SYMBOLTABLEENTRY_H_
-#define SYMBOLTABLE_SRC_SYMBOLTABLEENTRY_H_
+#ifndef SYMBOLTABLE_ENTRY_H
+#define SYMBOLTABLE_ENTRY_H
 
 #include "../includes/Information.h"
 #include <cstddef>
 
 class SymboltableEntry {
 private:
-	SymboltableEntry* next = NULL;
-	Information* info;
+	SymboltableEntry* next = nullptr;
+	const Information* const info;
 
 public:
-	SymboltableEntry(char* lexem, int length);
-	virtual ~SymboltableEntry();
+	SymboltableEntry(const char* lexem, std::size_t length);
 
-	void setNext(SymboltableEntry* entry);
-	Information* getEntryInformation();
-	SymboltableEntry* getNext();
+	void set_next(SymboltableEntry* entry);
+	const Information* get_entry_information() const;
+	SymboltableEntry* get_next() const;
 
 };
 
-#endif /* SYMBOLTABLE_SRC_SYMBOLTABLEENTRY_H_ */
+#endif /* SYMBOLTABLE_ENTRY_H */
