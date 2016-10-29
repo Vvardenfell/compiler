@@ -41,7 +41,7 @@ bool Information::compareLexem(char* lexem) {
 		}
 	}
 
-	return true;
+	return lexem[i] == '\0' && this->lexem[i] == '\0';
 }
 
 /*
