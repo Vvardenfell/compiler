@@ -138,7 +138,7 @@ public:
 	
 	void push_back(const T& object) {
 		resize_on_demand(1);
-		std::uninitialized_copy(&object, (&object) + 1, this->end());
+		new (static_cast<void*>(&*this->end())) T(object);
 		++this->next_free_space;
 	}
 
