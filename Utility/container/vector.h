@@ -18,11 +18,10 @@ template<typename T> void swap(Vector<T>& left, Vector<T>& right) {
 template<typename T>
 class Vector {
 private:
-	T* objects;
-	T* next_free_space;
-	T* end_free_space;
 	const static std::size_t INITIAL_CAPACITY = 16;
 	const static double RESIZE_FACTOR;
+
+	T* objects, next_free_space, end_free_space;
 
 	void resize() {
 		resize(static_cast<std::size_t>((this->end_free_space - this->objects) * RESIZE_FACTOR));
