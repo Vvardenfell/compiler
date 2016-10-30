@@ -21,7 +21,7 @@ private:
 	const static std::size_t INITIAL_CAPACITY = 16;
 	const static double RESIZE_FACTOR;
 
-	T* objects, next_free_space, end_free_space;
+	T *objects, *next_free_space, *end_free_space;
 
 	void resize() {
 		resize(static_cast<std::size_t>((this->end_free_space - this->objects) * RESIZE_FACTOR));
@@ -61,6 +61,8 @@ public:
 	typedef const T* const_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 	typedef std::ptrdiff_t difference_type;
+
+	const static Vector<T> EMPTY;
 
 	explicit Vector(std::size_t capacity = INITIAL_CAPACITY) {
 		this->next_free_space = this->objects = static_cast<T*>(::operator new(sizeof(T) * capacity));
