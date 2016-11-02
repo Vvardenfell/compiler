@@ -10,13 +10,22 @@
 template<typename T> class Vector;
 
 template<typename T> void swap(Vector<T>& left, Vector<T>& right) {
-	std::swap(left.objects, right.objects);
-	std::swap(left.next_free_space, right.next_free_space);
-	std::swap(left.end_free_space, right.end_free_space);
+	using std::swap;
+	swap(left.objects, right.objects);
+	swap(left.next_free_space, right.next_free_space);
+	swap(left.end_free_space, right.end_free_space);
 }
 
 template<typename T>
 class Vector {
+public:
+        typedef T value_type;
+        typedef T* iterator;
+        typedef std::reverse_iterator<iterator> reverse_iterator;
+        typedef const T* const_iterator;
+        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+        typedef std::ptrdiff_t difference_type;
+
 private:
 	const static std::size_t INITIAL_CAPACITY = 16;
 	const static double RESIZE_FACTOR;
@@ -33,13 +42,13 @@ private:
 	}
 
 	void resize_on_demand(size_t required_space) {
-		if (this->end_free_space - this->next_free_space < required_space) {
+		if (this->free_capacity() < required_space) {
 			this->resize((this->size() + required_space) * RESIZE_FACTOR);
 		}
 	}
 
-	template<typename U = T> typename std::enable_if<std::is_trivially_destructable<U>::value>::type destruct() {}
-	template<typename U = T> typename std::enable_if<!std::is_trivially_destructable<U>::value>::type destruct() {
+	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value>::type destruct() {}
+	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value>::type destruct() {
 		reverse_iterator end = this->rend();
 		for (reverse_iterator iterator = this->rbegin(); iterator < end; ++iterator) {
 			try {
@@ -54,13 +63,6 @@ private:
 public:
 
 	friend void swap<>(Vector<value_type>& left, Vector<value_type>& right);
-
-	typedef T value_type;
-	typedef T* iterator;
-	typedef std::reverse_iterator<iterator> reverse_iterator;
-	typedef const T* const_iterator;
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	typedef std::ptrdiff_t difference_type;
 
 	const static Vector<value_type> EMPTY;
 
@@ -140,11 +142,27 @@ public:
 	std::size_t capacity() const {
 		return this->end_free_space - this->objects;
 	}
+
+	std::size_t free_capacity() const {
+		return this->end_free_space - this->next_free_space;
+	}
 	
 	void push_back(const value_type& object) {
 		resize_on_demand(1);
 		new (static_cast<void*>(&*this->end())) value_type(object);
 		++this->next_free_space;
+	}
+
+	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value, value_type>::type pop_back() {
+		return *(--this->next_free_space);
+	}
+
+	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, value_type>::type pop_back() {
+		value_type tmp(*(--this->next_free_space));
+
+		this->next_free_space->~value_type();
+
+		return tmp;
 	}
 
 	~Vector() {
