@@ -21,7 +21,7 @@ private:
 	const static std::size_t INITIAL_CAPACITY = 16;
 	const static double RESIZE_FACTOR;
 
-	T *objects, *next_free_space, *end_free_space;
+	value_type *objects, *next_free_space, *end_free_space;
 
 	void resize() {
 		resize(static_cast<std::size_t>((this->end_free_space - this->objects) * RESIZE_FACTOR));
@@ -38,8 +38,8 @@ private:
 		}
 	}
 
-	template<typename U = T> typename std::enable_if<std::is_pod<U>::value>::type destruct() {} // TODO: use std::is_trivially_copyable<T>::value in g++ 5 instead
-	template<typename U = T> typename std::enable_if<!std::is_pod<U>::value>::type destruct() { // TODO: use std::is_trivially_copyable<T>::value in g++ 5 instead
+	template<typename U = T> typename std::enable_if<std::is_trivially_destructable<U>::value>::type destruct() {}
+	template<typename U = T> typename std::enable_if<!std::is_trivially_destructable<U>::value>::type destruct() {
 		reverse_iterator end = this->rend();
 		for (reverse_iterator iterator = this->rbegin(); iterator < end; ++iterator) {
 			try {
@@ -53,7 +53,7 @@ private:
 
 public:
 
-	friend void swap<>(Vector<T>& left, Vector<T>& right);
+	friend void swap<>(Vector<value_type>& left, Vector<value_type>& right);
 
 	typedef T value_type;
 	typedef T* iterator;
@@ -62,11 +62,15 @@ public:
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 	typedef std::ptrdiff_t difference_type;
 
-	const static Vector<T> EMPTY;
+	const static Vector<value_type> EMPTY;
 
 	explicit Vector(std::size_t capacity = INITIAL_CAPACITY) {
-		this->next_free_space = this->objects = static_cast<T*>(::operator new(sizeof(T) * capacity));
+		this->next_free_space = this->objects = static_cast<value_type*>(::operator new(sizeof(value_type) * capacity));
 		this->end_free_space = this->objects + capacity;
+	}
+
+	Vector(std::size_t size, const value_type& default_value) : Vector(size) {
+		for (size_t index = 0; index < size; index++) this->push_back(default_value);
 	}
 
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end) : Vector(begin, end, std::distance(begin, end) * RESIZE_FACTOR) {}
@@ -111,11 +115,11 @@ public:
 		return std::reverse_iterator<const_iterator>(this->begin());
 	}
 
-	T& operator[](std::size_t index) {
+	value_type& operator[](std::size_t index) {
 		return this->objects[index];
 	}
 
-	const T& operator[](std::size_t index) const {
+	const value_type& operator[](std::size_t index) const {
 		return this->objects[index];
 	}
 
@@ -137,9 +141,9 @@ public:
 		return this->end_free_space - this->objects;
 	}
 	
-	void push_back(const T& object) {
+	void push_back(const value_type& object) {
 		resize_on_demand(1);
-		new (static_cast<void*>(&*this->end())) T(object);
+		new (static_cast<void*>(&*this->end())) value_type(object);
 		++this->next_free_space;
 	}
 

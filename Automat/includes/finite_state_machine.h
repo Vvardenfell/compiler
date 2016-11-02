@@ -34,7 +34,7 @@ public:
 
 /**
 
-* Important: Transition MUST NOT outlive the State* passed to it.
+* Important: Transition MUST NOT outlive the State* passed to it. => TODO: implement shared_ptr
 
 **/
 class Transition {
@@ -83,61 +83,21 @@ public:
 
 template<typename T> class BranchTable {
 private:
-	T* const objects;
-	const size_t size, dimension_y;
-
-	template<typename U = T> typename std::enable_if<std::is_pod<U>::value>::type destruct() {} // TODO: use std::is_trivially_copyable<T>::value in g++ 5 instead
-	template<typename U = T> typename std::enable_if<!std::is_pod<U>::value>::type destruct() { // TODO: use std::is_trivially_copyable<T>::value in g++ 5 instead
-		reverse_iterator end = this->rend();
-		for (reverse_iterator iterator = this->rbegin(); iterator < end; ++iterator) {
-			try {
-				iterator->~U();
-			}
-			catch(...) {}
-		}
-
-		::operator delete(this->objects);
-	}
+	Vector<T> values;
+	const size_t dimension_y;
 
 public:
-	typedef T* iterator;
-	typedef std::reverse_iterator<iterator> reverse_iterator;
-
 	BranchTable(const size_t dimension_x, const size_t dimension_y, const T& default_value = T())
-		: objects(static_cast<T*>(::operator new(dimension_x * dimension_y))), size(dimension_x * dimension_y), dimension_y(dimension_y) {
-		const iterator end = this->end();
-		for (iterator current = this->begin(); current < end; current++) {
-			new (static_cast<void*>(&*current)) T(default_value);
-		}
-	}
-
-	iterator begin() {
-		return this->objects;
-	}
-
-	iterator end() {
-		return this->objects + this->size;
-	}
-
-	reverse_iterator rbegin() {
-		return std::reverse_iterator<iterator>(end());
-	}
-
-	reverse_iterator rend() {
-		return std::reverse_iterator<iterator>(begin());
-	}
+		: values(dimension_x * dimension_y, default_value), dimension_y(dimension_y) {}
 
 	void set(const size_t dimension_x, const size_t dimension_y, const T& object) {
-		this->objects[dimension_x * this->dimension_y + dimension_y] = object;
+		this->values[dimension_x * this->dimension_y + dimension_y] = object;
 	}
 
 	const T& get(const size_t dimension_x, const size_t dimension_y) const {
-		return this->objects[dimension_x * this->dimension_y + dimension_y];
+		return this->values[dimension_x * this->dimension_y + dimension_y];
 	}
 
-	~BranchTable() {
-		this->destruct();
-	}
 };
 
 
