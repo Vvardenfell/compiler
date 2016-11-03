@@ -56,8 +56,6 @@ private:
 			}
 			catch(...) {}
 		}
-
-		::operator delete(this->objects);
 	}
 
 public:
@@ -146,7 +144,7 @@ public:
 	std::size_t free_capacity() const {
 		return this->end_free_space - this->next_free_space;
 	}
-	
+
 	void push_back(const value_type& object) {
 		resize_on_demand(1);
 		new (static_cast<void*>(&*this->end())) value_type(object);
@@ -167,6 +165,7 @@ public:
 
 	~Vector() {
 		this->destruct();
+		::operator delete(this->objects);
 	}
 
 };

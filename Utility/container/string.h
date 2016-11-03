@@ -2,6 +2,7 @@
 #define STRING_H
 
 #include <algorithm>
+#include <cstring>
 #include "vector.h"
 
 class String {
@@ -11,7 +12,7 @@ public:
         typedef const char* const_iterator;
 
 private:
-	const static size_t INITIAL_CAPACITY = 16;
+	const static std::size_t INITIAL_CAPACITY = 16;
 
 	Vector<value_type> string;
 
@@ -25,6 +26,13 @@ public:
 	String() : String(INITIAL_CAPACITY) {}
 
 	String(const String& source) : string(source.string) {}
+
+	String(const char* source, std::size_t bytes) : string(bytes + 1) {
+	    this->string.insert(this->string.end(), source, source + bytes);
+	    this->string.push_back('\0');
+	}
+
+	String(const char* source) : String(source, std::strlen(source)) {}
 
 	String& operator=(String source) {
 		swap(*this, source);
@@ -54,8 +62,8 @@ public:
 	}
 
 	String& operator+=(const String& source) {
-		if (string.free_capacity() >= source.size()) {
-			string.insert(string.end() - 1, source.string.begin(), source.string.end());
+		if (this->string.free_capacity() >= source.size()) {
+			this->string.insert(this->string.end() - 1, source.string.begin(), source.string.end());
 		}
 		else {
 			String tmp = *this + source;
@@ -65,21 +73,21 @@ public:
 	}
 
 	String& operator+=(value_type source) {
-		string.pop_back();
-		string.push_back(source);
-		string.push_back('\0');
+		this->string.pop_back();
+		this->string.push_back(source);
+		this->string.push_back('\0');
 		return *this;
 	}
 
-	const value_type& operator[](size_t index) const {
+	const value_type& operator[](std::size_t index) const {
 		return this->string[index];
 	}
 
-	value_type& operator[](size_t index) {
+	value_type& operator[](std::size_t index) {
 		return this->string[index];
 	}
 
-	const const_iterator c_str() const {
+	const_iterator c_str() const {
 		return &this->operator[](0);
 	}
 
