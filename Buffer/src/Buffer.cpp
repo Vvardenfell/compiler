@@ -2,9 +2,9 @@
 #include "../../Utility/exception/exception.h"
 
 
-Buffer::Buffer(const char* file) : source(file) {
-	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new(Buffer::BUFFER_SIZE << 1));
-	this->begin = this->end = this->next = this->back_buffer_begin + Buffer::BUFFER_SIZE;
+Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
+	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new(buffer_size << 1));
+	this->begin = this->end = this->next = this->back_buffer_begin + buffer_size;
 	this->next_chunk_loaded = this->previous_chunk_loaded = false;
 
 	if (!(this->source.is_open())) {
@@ -13,7 +13,7 @@ Buffer::Buffer(const char* file) : source(file) {
 }
 
 void Buffer::read_next_chunk() {
-	this->source.read(this->begin, Buffer::BUFFER_SIZE);
+	this->source.read(this->begin, buffer_size);
 	this->end = this->begin + this->source.gcount();
 	this->next = this->begin;
 
@@ -23,7 +23,7 @@ void Buffer::read_next_chunk() {
 }
 
 void Buffer::read_previous_chunk() {
-	this->source.seekg(-((this->end - this->begin) + Buffer::BUFFER_SIZE), std::ios_base::cur);
+	this->source.seekg(-((this->end - this->begin) + buffer_size), std::ios_base::cur);
 	this->read_next_chunk();
 	this->next = this->end;
 }

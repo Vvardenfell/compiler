@@ -10,6 +10,7 @@ private:
 	const static int BUFFER_SIZE = 4096;
 	char *begin, *end, *next, *back_buffer_begin, *back_buffer_end;
 	bool next_chunk_loaded, previous_chunk_loaded;
+	size_t buffer_size;
 
 	std::ifstream source;
 
@@ -20,7 +21,7 @@ private:
 	void switch_buffer();
 
 public:
-	explicit Buffer(const char* file);
+	explicit Buffer(const char* file, std::size_t buffer_size = BUFFER_SIZE);
 	~Buffer();
 
 	Buffer(const Buffer& source) = delete;
