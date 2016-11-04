@@ -33,51 +33,19 @@ public:
 	}
 
 	String(const char* source) : String(source, std::strlen(source)) {}
-
+	
 	String& operator=(String source) {
 		swap(*this, source);
 		return *this;
 	}
 
-	String& operator=(value_type source) {
-		string = Vector<value_type>(String::INITIAL_CAPACITY);
-		string.push_back(source);
-		string.push_back('\0');
-		return *this;
-	}
+	String& operator=(value_type source);
 
-	String operator+(const String& source) const {
-		String tmp(this->size() + source.size() + 1);
-		tmp.string.insert(tmp.string.end(), this->string.begin(), this->string.end());
-		tmp.string.insert(tmp.string.end(), source.string.begin(), source.string.end() + 1);
-		return tmp;
-	}
+	String operator+(const String& source) const;
+	String operator+(value_type source) const;
 
-	String operator+(value_type source) const {
-		String tmp(this->size() + 2);
-		tmp.string.insert(tmp.string.end(), this->string.begin(), this->string.end());
-		tmp.string.push_back(source);
-		tmp.string.push_back('\0');
-		return tmp;
-	}
-
-	String& operator+=(const String& source) {
-		if (this->string.free_capacity() >= source.size()) {
-			this->string.insert(this->string.end() - 1, source.string.begin(), source.string.end());
-		}
-		else {
-			String tmp = *this + source;
-			swap(*this, tmp);
-		}
-		return *this;
-	}
-
-	String& operator+=(value_type source) {
-		this->string.pop_back();
-		this->string.push_back(source);
-		this->string.push_back('\0');
-		return *this;
-	}
+	String& operator+=(const String& source);
+	String& operator+=(value_type source);
 
 	const value_type& operator[](std::size_t index) const {
 		return this->string[index];
@@ -107,19 +75,25 @@ public:
 		return this->string.end() - 1;
 	}
 
-	const_iterator begin() const {
-		return this->string.begin();
+	const_iterator cbegin() const {
+		return this->string.cbegin();
 	}
 
-	const_iterator end() const {
-		return this->string.end() - 1;
+	const_iterator cend() const {
+		return this->string.cend() - 1;
 	}
 };
 
+bool operator==(const String& left, const String& right);
+
+bool operator!=(const String& left, const String& right) {
+	return !(left == right);
+}
+
 
 void swap(String& left, String& right) {
-        using std::swap;
-        swap(left.string, right.string);
+	using std::swap;
+	swap(left.string, right.string);
 }
 
 #endif /* STRING_H */
