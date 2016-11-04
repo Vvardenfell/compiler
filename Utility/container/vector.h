@@ -64,8 +64,6 @@ public:
 
 	const static Vector<value_type> EMPTY;
 
-	const static Vector<T> EMPTY;
-
 	explicit Vector(std::size_t capacity = INITIAL_CAPACITY) {
 		this->next_free_space = this->objects = static_cast<value_type*>(::operator new(sizeof(value_type) * capacity));
 		this->end_free_space = this->objects + capacity;
