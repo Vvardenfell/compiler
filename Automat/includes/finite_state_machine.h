@@ -11,25 +11,23 @@ class Transition;
 class State {
 private:
     const Vector<Transition> transitions;
-    TokenType generate_token;
-
-protected:
-    State(const Vector<Transition>& transitions, TokenType generate_token) : transitions(transitions), generate_token(generate_token) {}
-    State(Vector<Transition>&& transitions, TokenType generate_token) : transitions(transitions), generate_token(generate_token) {}
 
 public:
-    State(const Vector<Transition>& transitions) : State(transitions, TokenType::DEADBEEF) {}
+    State(const Vector<Transition>& transitions) : transitions(transitions) {}
     virtual ~State() = default;
 
-    TokenType token() const { return this->generate_token; }
-    const Vector<Transition>& get_transitions() { return this->transitions; }
+    const Vector<Transition>& get_transitions() const { return this->transitions; }
 };
 
 
 class FinalState : public State {
+private:
+    TokenType generate_token;
+
 public:
-    FinalState(TokenType generate_token, const Vector<Transition>& transitions = Vector<Transition>::EMPTY) : State(transitions, generate_token) {};
-    FinalState(TokenType generate_token, Vector<Transition>&& transitions) : State(transitions, generate_token) {}
+    FinalState(TokenType generate_token, const Vector<Transition>& transitions = Vector<Transition>::EMPTY) : State(transitions), generate_token(generate_token) {};
+
+    TokenType token() const { return this->generate_token; }
 };
 
 /**
@@ -55,7 +53,7 @@ private:
 
 public:
 	CharTransition(const State *next_state, char symbol) : Transition(next_state), symbol(symbol) {}
-	char get_symbol() { return this->symbol; }
+	char get_symbol() const { return this->symbol; }
 	const State* process(char symbol) const override;
 };
 
@@ -75,26 +73,26 @@ private:
 
 public:
 	TypeTransition(const State *next_state, CharClass type) : Transition(next_state), type(type) {}
-	CharClass get_type() { return this->type; }
+	CharClass get_type() const { return this->type; }
 	const State* process(char symbol) const override;
     const Vector<char>& values() const;
 };
 
 
-template<typename T> class BranchTable {
+template<typename T> class BranchMatrix {
 private:
 	Vector<T> values;
-	const size_t dimension_y;
+	const std::size_t dimension_y;
 
 public:
-	BranchTable(const size_t dimension_x, const size_t dimension_y, const T& default_value = T())
+	BranchMatrix(const std::size_t dimension_x, const std::size_t dimension_y, const T& default_value = T())
 		: values(dimension_x * dimension_y, default_value), dimension_y(dimension_y) {}
 
-	void set(const size_t dimension_x, const size_t dimension_y, const T& object) {
+	void set(const std::size_t dimension_x, const std::size_t dimension_y, const T& object) {
 		this->values[dimension_x * this->dimension_y + dimension_y] = object;
 	}
 
-	const T& get(const size_t dimension_x, const size_t dimension_y) const {
+	const T& get(const std::size_t dimension_x, const std::size_t dimension_y) const {
 		return this->values[dimension_x * this->dimension_y + dimension_y];
 	}
 
@@ -105,28 +103,33 @@ class FiniteStateMachine {
 private:
     typedef unsigned char state_type;
 
-    const static state_type CRASH_STATE_ID = 0;
+    const static state_type CRASH_STATE_ID = 0, START_STATE_ID = 1;
+    const static FinalState CRASH_STATE;
     const static unsigned char SUPPORTED_ENCODING_MAX_VALUE = 127;
-    const static size_t STATE_TYPE_MAX = std::numeric_limits<state_type>::max();
+    const static std::size_t STATE_TYPE_MAX = std::numeric_limits<state_type>::max();
 
-    state_type state_id = 1, current_state;
-    BranchTable<state_type> branch_table;
-    Vector<TokenType> generated_tokens;
+    Vector<const State*> states;
+    state_type current_state;
+    BranchMatrix<state_type> branch_table;
+    std::size_t steps_since_last_final_state;
+    state_type last_final_state_index;
 
-    state_type map_state_to_id(unordered_map<State, state_type>& state_map, const State& state);
-    state_type next_free_state_id();
-    void init_branch_table(unordered_map<State, state_type>& state_map, const std::initializer_list<State> states);
-    void branch_table_entry(unordered_map<State, state_type>& state_map, state_type state_id, const Transition& transition);
-    void branch_table_entry(state_type col, state_type row, state_type next_state);
-    void branch_table_entry(state_type col, const TypeTransition& transition, state_type next_state);
+    static const Vector<const State*> gather_states(const State* start);
+    void init_branch_table();
+    void branch_table_entry(const Transition* transition, state_type current_state_index, state_type next_state_index);
+    void branch_table_entry(state_type symbol, state_type current_state_index, state_type next_state_index);
+    void branch_table_entry(const TypeTransition& transition, state_type current_state_index, state_type next_state_index);
 
     void check_encoding(state_type value) {
         if (value > FiniteStateMachine::SUPPORTED_ENCODING_MAX_VALUE) throw 21; // TODO: throw proper exception, if the requested character is not in ASCII encoding
     }
 
 public:
-    FiniteStateMachine(const State& start, const std::initializer_list<State> states);
-    bool process(char symbol, TokenType& type);
+    FiniteStateMachine(const State* start);
+    bool process(char symbol);
+    std::size_t get_steps_since_last_final_state() const;
+    const FinalState& get_last_final_state() const;
+    void reset();
 };
 
 #endif /* Automaton_H_ */

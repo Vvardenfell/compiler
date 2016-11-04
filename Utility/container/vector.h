@@ -91,11 +91,11 @@ public:
 		return this->next_free_space;
 	}
 
-	const_iterator begin() const {
+	const_iterator cbegin() const {
 		return this->objects;
 	}
 
-	const_iterator end() const {
+	const_iterator cend() const {
 		return this->next_free_space;
 	}
 
@@ -162,6 +162,26 @@ public:
 
 		return tmp;
 	}
+
+    iterator find(const value_type& value) {
+        for (iterator iterator = this->begin(); iterator != this->end(); iterator++) {
+            if (*iterator == value) return iterator;
+        }
+
+        return this->end();
+    }
+
+    const_iterator find(const value_type& value) const {
+        for (const_iterator iterator = this->cbegin(); iterator != this->cend(); iterator++) {
+            if (*iterator == value) return iterator;
+        }
+
+        return this->cend();
+    }
+
+    bool contains(const value_type& value) const {
+        return this->find(value) != this->cend();
+    }
 
 	~Vector() {
 		this->destruct();

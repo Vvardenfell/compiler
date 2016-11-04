@@ -1,81 +1,114 @@
 #include "../../Utility/exception/exception.h"
-#include "../includes/Automaton.h"
+#include "../includes/finite_state_machine.h"
 //#include "../../Utility/character_classification.h"
 #include <limits>
 
 
+/**
+* FiniteStateMachine MUST NOT outlive the State* passed to it => TODO: implement shared_ptr
+**/
+FiniteStateMachine::FiniteStateMachine(const State* start)
+    : states(FiniteStateMachine::gather_states(start))
+    , current_state(FiniteStateMachine::START_STATE_ID)
+    , branch_table(states.size(), FiniteStateMachine::SUPPORTED_ENCODING_MAX_VALUE, FiniteStateMachine::CRASH_STATE_ID)
+    , steps_since_last_final_state(0)
+    , last_final_state_index(FiniteStateMachine::CRASH_STATE_ID) {
 
-FiniteStateMachine::FiniteStateMachine(const State& start, const std::initializer_list<State> states)
-    : current_state(FiniteStateMachine::CRASH_STATE_ID), branch_table(states.size(), SUPPORTED_ENCODING_MAX_VALUE, CRASH_STATE_ID), generated_tokens(states.size()) {
+    if (states.size() - 1 > FiniteStateMachine::STATE_TYPE_MAX) throw 42; // TODO: throw proper exception if the amount of states can not be represented by a state_type
 
-    if (states.size() > FiniteStateMachine::STATE_TYPE_MAX) throw 42; // TODO: throw proper exception if the amount of states can not be represented by a state_type
-
-    this->generated_tokens.push_back(TokenType::DEADBEEF);
-    unordered_map<State, state_type> state_map;
-
-    this->init_branch_table(state_map, states);
-
-    current_state = this->map_state_to_id(state_map, start);
+    this->init_branch_table();
 }
 
-FiniteStateMachine::state_type FiniteStateMachine::next_free_state_id() {
-    if (FiniteStateMachine::STATE_TYPE_MAX == this->state_id) throw 42; // TODO: throw proper exception if the amount of states can not be represented by a state_type
-    return this->state_id++;
+const Vector<const State*> FiniteStateMachine::gather_states(const State* start) {
+    Vector<const State*> states;
+    states.push_back(&FiniteStateMachine::CRASH_STATE);
+    states.push_back(start);
+
+    for (Vector<const State*>::iterator iterator = states.begin(); iterator != states.end(); iterator++) {
+        const Vector<Transition>& transitions = (*iterator)->get_transitions();
+        for (Vector<Transition>::const_iterator transition_iterator = transitions.cbegin(); transition_iterator != transitions.cend(); transition_iterator++) {
+            const State* next_state = transition_iterator->get_next_state();
+            if (!states.contains(next_state)) states.push_back(next_state);
+        }
+    }
+
+    return states;
 }
 
-FiniteStateMachine::state_type FiniteStateMachine::map_state_to_id(unordered_map<State, state_type>& state_map, const State& state) {
-    const auto state_id = state_map.find(state);
+void FiniteStateMachine::init_branch_table() {
+    Vector<const State*>::const_iterator begin = this->states.cbegin(), end = this->states.cend();
 
-    if (state_id == state_map.end()) return state_map[state] = this->next_free_state_id();
-    return *state_id;
-}
+    for (Vector<const State*>::const_iterator iterator = begin; iterator != end; iterator++) {
+        std::size_t current_state_index = std::distance(begin, iterator);
+        const Vector<Transition>& transitions = (*iterator)->get_transitions();
 
-void FiniteStateMachine::init_branch_table(unordered_map<State, state_type>& state_map, const std::initializer_list<State> states) {
-    for (auto& state : states) {
-        state_type state_id = this->map_state_to_id(state_map, state);
-        if (this->is_latest_state(state_id)) this->generated_tokens.push_back(state.token());
+        for (Vector<Transition>::const_iterator transition_iterator = transitions.cbegin(); transition_iterator != transitions.cend(); transition_iterator++) {
+            const State* next_state = transition_iterator->get_next_state();
+            Vector<const State*>::const_iterator element = this->states.find(next_state);
 
-        for (const Transition& transition : state.get_transitions()) {
-            this->branch_table_entry(state_map, state_id, transition);
+            if (element == end) throw 12; // TODO: throw an exception that something went horribly wrong, because the searched state must be in the vector or we have a bug
+
+            std::size_t next_state_index = std::distance(begin, element);
+            this->branch_table_entry(&*transition_iterator, static_cast<state_type>(current_state_index), static_cast<state_type>(next_state_index));
         }
     }
 }
 
-void FiniteStateMachine::branch_table_entry(unordered_map<State, state_type>& state_map, state_type state_id, const Transition& transition) {
-    state_type next_state = this->map_state_to_id(state_map, *transition->get_next_state());
-
-    if (CharTransition *char_transition = dynamic_cast<CharTransition*>(transition)) {
-        state_type symbol = reinterpret_cast<state_type>(char_transition->get_symbol());
-        this->branch_table_entry(state_id, symbol, next_state);
+void FiniteStateMachine::branch_table_entry(const Transition *transition, state_type current_state_index, state_type next_state_index) {
+    if (const CharTransition *char_transition = dynamic_cast<const CharTransition*>(transition)) {
+        state_type symbol = static_cast<state_type>(char_transition->get_symbol());
+        this->branch_table_entry(symbol, current_state_index, next_state_index);
     }
-    else if (TypeTransition *type_transition = dynamic_cast<TypeTransition*>(transition)) {
-        this->branch_table_entry(state_id, *type_transition, next_state);
+    else if (const TypeTransition *type_transition = dynamic_cast<const TypeTransition*>(transition)) {
+        this->branch_table_entry(*type_transition, current_state_index, next_state_index);
     }
-    else throw 56; // TODO: throw proper exception, if the given Transition type is not supported by this constructor
+    else throw 56; // TODO: throw proper exception, if the given Transition type is not supported
 }
 
-void FiniteStateMachine::branch_table_entry(state_type col, state_type row, state_type next_state) {
-    check_encoding(row);
-    this->branch_table.set(col, row, next_state);
+void FiniteStateMachine::branch_table_entry(state_type symbol, state_type current_state_index, state_type next_state_index) {
+    this->check_encoding(symbol);
+    this->branch_table.set(current_state_index, symbol, next_state_index);
 }
 
-void FiniteStateMachine::branch_table_entry(state_type col, const TypeTransition& transition, state_type next_state) {
-    for (auto value : transition.values()) {
-        value = reinterpret_cast<state_type>(value);
-        check_encoding(value);
-        this->branch_table.set(col, value, next_state);
+void FiniteStateMachine::branch_table_entry(const TypeTransition& transition, state_type current_state_index, state_type next_state_index) {
+    const Vector<char> values = transition.values();
+    for (Vector<char>::const_iterator iterator = values.cbegin(); iterator != values.cend(); iterator++) {
+        state_type symbol = static_cast<state_type>(*iterator);
+        this->check_encoding(symbol);
+        this->branch_table.set(current_state_index, symbol, next_state_index);
     }
 }
 
-bool FiniteStateMachine::process(char symbol, TokenType& type) {
-    state_type transformed_symbol = reinterpret_cast<state_type>(symbol);
+bool FiniteStateMachine::process(char symbol) {
+    state_type transformed_symbol = static_cast<state_type>(symbol);
 
-    check_encoding(transformed_symbol);
-    current_state = branch_table.get(current_state, transformed_symbol);
-    type = generated_tokens[current_state];
+    this->check_encoding(transformed_symbol);
+    this->current_state = this->branch_table.get(current_state, transformed_symbol);
 
-    return current_state != FiniteStateMachine::CRASH_STATE_ID;
+    if (dynamic_cast<const FinalState*>(this->states[this->current_state])) {
+        this->last_final_state_index = this->current_state;
+        this->steps_since_last_final_state = 0;
+    }
+    else this->steps_since_last_final_state++;
+
+    return this->current_state != FiniteStateMachine::CRASH_STATE_ID;
 }
+
+std::size_t FiniteStateMachine::get_steps_since_last_final_state() const {
+    return this->steps_since_last_final_state;
+}
+
+const FinalState& FiniteStateMachine::get_last_final_state() const {
+    return static_cast<const FinalState&>(*(this->states[this->last_final_state_index]));
+}
+
+void FiniteStateMachine::reset() {
+    this->current_state = FiniteStateMachine::START_STATE_ID;
+    this->steps_since_last_final_state = 0;
+    this->last_final_state_index = FiniteStateMachine::CRASH_STATE_ID;
+}
+
+const FinalState FiniteStateMachine::CRASH_STATE = FinalState(TokenType::DEADBEEF);
 
 const State* CharTransition::process(char symbol) const {
 	if (this->symbol == symbol) return get_next_state();
@@ -85,15 +118,15 @@ const State* CharTransition::process(char symbol) const {
 const State* TypeTransition::process(char symbol) const {
 	switch(this->get_type()) {
 	case CharClass::ALPHA: {
-		if (is_alpha(symbol)) return get_next_state();
+		if (is_alpha(symbol)) return this->get_next_state();
 		break;
 	}
 	case CharClass::ALPHA_NUMERIC: {
-		if (is_alnum(symbol)) return get_next_state();
+		if (is_alnum(symbol)) return this->get_next_state();
 		break;
 	}
 	case CharClass::NUMERIC: {
-		if (is_digit(symbol)) return get_next_state();
+		if (is_digit(symbol)) return this->get_next_state();
 		break;
 	}
 	default: throw UncoveredCharClassException(std::string("Switch-statement does not handle given CharClass value: ") + static_cast<int>(this->get_type()));
