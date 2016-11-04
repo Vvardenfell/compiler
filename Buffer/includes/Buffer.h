@@ -8,17 +8,20 @@
 class Buffer {
 private:
 	const static int BUFFER_SIZE = 4096;
-	char* start;
-	char* end;
-	char* next;
+	char *begin, *end, *next, *back_buffer_begin, *back_buffer_end;
+	bool next_chunk_loaded, previous_chunk_loaded;
+	size_t buffer_size;
 
 	std::ifstream source;
 
 	void read_next_chunk();
 	void read_previous_chunk();
+	void read_next_chunk_on_demand();
+	void read_previous_chunk_on_demand();
+	void switch_buffer();
 
 public:
-	explicit Buffer(const char* file);
+	explicit Buffer(const char* file, std::size_t buffer_size = BUFFER_SIZE);
 	~Buffer();
 
 	Buffer(const Buffer& source) = delete;
