@@ -73,6 +73,8 @@ public:
 		for (size_t index = 0; index < size; index++) this->push_back(default_value);
 	}
 
+	explicit Vector(std::initializer_list<value_type> initializer) : Vector(initializer.begin(), initializer.end()) {}
+
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end) : Vector(begin, end, std::distance(begin, end) * RESIZE_FACTOR) {}
 
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end, std::size_t capacity) : Vector(capacity) {
@@ -163,25 +165,25 @@ public:
 		return tmp;
 	}
 
-    iterator find(const value_type& value) {
-        for (iterator iterator = this->begin(); iterator != this->end(); iterator++) {
-            if (*iterator == value) return iterator;
-        }
+	iterator find(const value_type& value) {
+		for (iterator iterator = this->begin(); iterator != this->end(); iterator++) {
+			if (*iterator == value) return iterator;
+		}
 
-        return this->end();
-    }
+		return this->end();
+	}
 
-    const_iterator find(const value_type& value) const {
-        for (const_iterator iterator = this->cbegin(); iterator != this->cend(); iterator++) {
-            if (*iterator == value) return iterator;
-        }
+	const_iterator find(const value_type& value) const {
+		for (const_iterator iterator = this->cbegin(); iterator != this->cend(); iterator++) {
+			if (*iterator == value) return iterator;
+		}
 
-        return this->cend();
-    }
+		return this->cend();
+	}
 
-    bool contains(const value_type& value) const {
-        return this->find(value) != this->cend();
-    }
+	bool contains(const value_type& value) const {
+		return this->find(value) != this->cend();
+	}
 
 	~Vector() {
 		this->destruct();
@@ -189,6 +191,5 @@ public:
 	}
 
 };
-
 
 #endif /* VECTOR_H */

@@ -1,6 +1,6 @@
 #include "../../Utility/exception/exception.h"
 #include "../includes/finite_state_machine.h"
-//#include "../../Utility/character_classification.h"
+#include "../../Utility/character_classification.h"
 #include <limits>
 
 
@@ -129,7 +129,7 @@ const State* TypeTransition::process(char symbol) const {
 		if (is_digit(symbol)) return this->get_next_state();
 		break;
 	}
-	default: throw UncoveredCharClassException(std::string("Switch-statement does not handle given CharClass value: ") + static_cast<int>(this->get_type()));
+	default: throw UncoveredCharClassException(std::string("Switch-statement does not handle given CharClass value: ") + std::to_string(static_cast<int>(this->get_type())));
 	}
 
 	throw TransitionCharacterProcessingException("Given symbol does not match required CharClass.");
@@ -140,14 +140,14 @@ const Vector<char>& TypeTransition::values() const {
     case CharClass::NUMERIC: return this->NUMERIC_VALUES;
     case CharClass::ALPHA: return this->ALPHA_VALUES;
     case CharClass::ALPHA_NUMERIC: return this->ALPHA_NUMERIC_VALUES;
-    default: throw UncoveredCharClassException(std::string("Switch-statement does not handle given CharClass value: ") + static_cast<int>(this->get_type()));
+    default: throw UncoveredCharClassException(std::string("Switch-statement does not handle given CharClass value: ") + std::to_string(static_cast<int>(this->get_type())));
     }
 }
 
-const TypeTransition::NUMERIC_VALUES{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-const TypeTransition::ALPHA_VALUES{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+const Vector<char> TypeTransition::NUMERIC_VALUES{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+const Vector<char> TypeTransition::ALPHA_VALUES{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
                                  , 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-const TypeTransition::ALPHA_NUMERIC_VALUES{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+const Vector<char> TypeTransition::ALPHA_NUMERIC_VALUES{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
                                  , 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
                                  , 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
