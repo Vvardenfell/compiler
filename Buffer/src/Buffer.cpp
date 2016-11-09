@@ -1,29 +1,41 @@
 #include "../includes/Buffer.h"
 #include "../../Utility/exception/exception.h"
 
-
 Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
 	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new(buffer_size << 1));
 	this->begin = this->end = this->next = this->back_buffer_begin + buffer_size;
 	this->next_chunk_loaded = this->previous_chunk_loaded = false;
+	this->buffer_size = buffer_size;
+	this->injected_newline = false;
 
 	if (!(this->source.is_open())) {
 		throw BufferInitializationException(std::string("Failed to initialize Buffer, because the file \"") + std::string(file) + std::string("\" couldn't be opened!"));
 	}
 }
 
+void Buffer::inject_newline() {
+	this->injected_newline = true;
+	if (this->buffer_size > 0) {
+		*(this->begin) = '\n';
+		++this->end;
+	}
+}
+
 void Buffer::read_next_chunk() {
-	this->source.read(this->begin, buffer_size);
+	this->source.read(this->begin, this->buffer_size);
 	this->end = this->begin + this->source.gcount();
 	this->next = this->begin;
 
 	if (this->begin == this->end) {
-		throw BufferBoundsExceededException("Exceeded bounds of file while trying to read chunk!");
+		if (this->injected_newline) throw BufferBoundsExceededException("Exceeded bounds of file while trying to read chunk!");
+		else this->inject_newline();
 	}
 }
 
 void Buffer::read_previous_chunk() {
-	this->source.seekg(-((this->end - this->begin) + buffer_size), std::ios_base::cur);
+	this->injected_newline = false;
+	this->source.clear();
+	this->source.seekg(-((this->end - this->begin) + this->buffer_size), std::ios_base::cur);
 	this->read_next_chunk();
 	this->next = this->end;
 }
@@ -36,7 +48,7 @@ void Buffer::read_next_chunk_on_demand() {
 	        this->next = this->begin;
 	    }
 	    else {
-            this->previous_chunk_loaded = true;
+                this->previous_chunk_loaded = true;
 	        this->read_next_chunk();
 	    }
 	}

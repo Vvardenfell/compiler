@@ -10,7 +10,8 @@ private:
 	const static int BUFFER_SIZE = 4096;
 	char *begin, *end, *next, *back_buffer_begin, *back_buffer_end;
 	bool next_chunk_loaded, previous_chunk_loaded;
-	size_t buffer_size;
+	std::size_t buffer_size;
+	bool injected_newline;
 
 	std::ifstream source;
 
@@ -19,6 +20,7 @@ private:
 	void read_next_chunk_on_demand();
 	void read_previous_chunk_on_demand();
 	void switch_buffer();
+	void inject_newline();
 
 public:
 	explicit Buffer(const char* file, std::size_t buffer_size = BUFFER_SIZE);
