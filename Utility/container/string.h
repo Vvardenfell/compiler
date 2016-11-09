@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <iterator>
 #include "vector.h"
 
 class String {
@@ -10,6 +11,8 @@ public:
         typedef char value_type;
         typedef char* iterator;
         typedef const char* const_iterator;
+        typedef std::reverse_iterator<iterator> reverse_iterator;
+        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 private:
 	const static std::size_t INITIAL_CAPACITY = 16;
@@ -17,7 +20,7 @@ private:
 	Vector<value_type> string;
 
 	String(std::size_t capacity) : string(capacity) {
-		string.push_back('\0');
+		this->string.push_back('\0');
 	}
 
 public:
@@ -33,6 +36,8 @@ public:
 	}
 
 	String(const char* source) : String(source, std::strlen(source)) {}
+
+	String(const_iterator begin, const_iterator end) : String(begin, std::distance(begin, end)) {}
 	
 	String& operator=(String source) {
 		swap(*this, source);
@@ -82,18 +87,35 @@ public:
 	const_iterator cend() const {
 		return this->string.cend() - 1;
 	}
+
+	reverse_iterator rbegin() {
+		return std::reverse_iterator<iterator>(this->end());
+	}
+
+	reverse_iterator rend() {
+		return std::reverse_iterator<iterator>(this->begin());
+	}
+
+	const_reverse_iterator rbegin() const {
+		return std::reverse_iterator<const_iterator>(this->cend());
+	}
+
+	const_reverse_iterator rend() const {
+		return std::reverse_iterator<const_iterator>(this->cbegin());
+	}
+
+	const_iterator find_last_of(const char* sequence) const;
+
+	String& clear() {
+		this->string.clear();
+		this->string.push_back('\0');
+		return *this;
+	}
 };
 
 bool operator==(const String& left, const String& right);
+bool operator!=(const String& left, const String& right);
 
-bool operator!=(const String& left, const String& right) {
-	return !(left == right);
-}
-
-
-void swap(String& left, String& right) {
-	using std::swap;
-	swap(left.string, right.string);
-}
+void swap(String& left, String& right);
 
 #endif /* STRING_H */

@@ -73,12 +73,22 @@ public:
 		for (size_t index = 0; index < size; index++) this->push_back(default_value);
 	}
 
-	explicit Vector(std::initializer_list<value_type> initializer) : Vector(initializer.begin(), initializer.end()) {}
+	Vector(std::initializer_list<value_type> initializer) : Vector(initializer.begin(), initializer.end()) {}
 
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end) : Vector(begin, end, std::distance(begin, end) * RESIZE_FACTOR) {}
 
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end, std::size_t capacity) : Vector(capacity) {
 		this->next_free_space = std::uninitialized_copy(begin, end, this->begin());
+	}
+
+	Vector(const Vector<value_type>& source) : Vector(source.cbegin(), source.cend(), source.capacity()) {}
+	Vector(Vector<value_type>&& source) : objects(nullptr), next_free_space(nullptr), end_free_space(nullptr) {
+		swap(*this, source);
+	}
+
+	Vector<value_type>& operator=(Vector<value_type> source) {
+		swap(*this, source);
+		return *this;
 	}
 
 	std::size_t size() const {
@@ -110,11 +120,11 @@ public:
 	}
 
 	const_reverse_iterator rbegin() const {
-		return std::reverse_iterator<const_iterator>(this->end());
+		return std::reverse_iterator<const_iterator>(this->cend());
 	}
 
 	const_reverse_iterator rend() const {
-		return std::reverse_iterator<const_iterator>(this->begin());
+		return std::reverse_iterator<const_iterator>(this->cbegin());
 	}
 
 	value_type& operator[](std::size_t index) {
@@ -185,11 +195,23 @@ public:
 		return this->find(value) != this->cend();
 	}
 
+	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value, Vector&>::type clear() {
+		this->next_free_space = this->objects;
+	}
+
+	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, Vector&>::type clear() {
+		this->destruct();
+		this->next_free_space = this->objects;
+	}
+
 	~Vector() {
 		this->destruct();
 		::operator delete(this->objects);
 	}
 
 };
+
+template<typename T> const double Vector<T>::RESIZE_FACTOR = 1.4;
+template<typename T> const Vector<T> Vector<T>::EMPTY(0);
 
 #endif /* VECTOR_H */

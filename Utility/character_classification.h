@@ -13,4 +13,16 @@ inline bool is_alnum(char symbol) {
     return is_alpha(symbol) || is_digit(symbol);
 }
 
+inline bool is_space(char symbol) {
+    switch(symbol) {
+    case ' ':
+    case '\n':
+    case '\r':
+    case '\t':
+    case '\v':
+    case '\f': return true;
+    default: return false;
+    }
+}
+
 #endif // CHARACTER_CLASSIFICATION_H
