@@ -27,7 +27,10 @@ enum class TokenType : unsigned char {
     IDENTIFIER,
 
     IF,
-    WHILE
+    WHILE,
+
+    COMMENT,
+    LINE_FEED
 };
 
 
