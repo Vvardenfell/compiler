@@ -18,27 +18,6 @@ Information::Information(const char* lexem, std::size_t length) : lexem(lexem), 
 }
 
 /*
- * Compares the lexem in the info to an other lexem.
- *
- * @param lexem the lexem to be compared
- * @return returns true if the two lexems are identical and false otherwise
- */
-bool Information::compare_lexem(const char* lexem) const {
-	std::size_t i = 0;
-
-	while (lexem[i] != '\0' && this->lexem[i] != '\0') {
-		if (lexem[i] == this->lexem[i]) {
-			i++;
-		}
-		else {
-			return false;
-		}
-	}
-
-	return lexem[i] == '\0' && this->lexem[i] == '\0';
-}
-
-/*
  * Gets the name of the lexem.
  *
  * @return returns the name

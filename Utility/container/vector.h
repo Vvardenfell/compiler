@@ -37,11 +37,11 @@ private:
 	}
 
 	void resize(std::size_t new_capacity) {
-		Vector tmp(this->begin(), this->end(), new_capacity);
+		Vector<T> tmp(std::make_move_iterator(this->begin()), std::make_move_iterator(this->end()), new_capacity);
 		swap(*this, tmp);
 	}
 
-	void resize_on_demand(size_t required_space) {
+	void resize_on_demand(std::size_t required_space) {
 		if (this->free_capacity() < required_space) {
 			this->resize((this->size() + required_space) * RESIZE_FACTOR);
 		}
@@ -158,8 +158,20 @@ public:
 	}
 
 	void push_back(const value_type& object) {
-		resize_on_demand(1);
+		this->resize_on_demand(1);
 		new (static_cast<void*>(&*this->end())) value_type(object);
+		++this->next_free_space;
+	}
+
+	void push_back(value_type&& object) {
+		this->resize_on_demand(1);
+		new (static_cast<void*>(&*this->end())) value_type(object);
+		++this->next_free_space;
+	}
+
+	template<typename... Args> void emplace_back(Args&&... args) {
+		this->resize_on_demand(1);
+		new (static_cast<void*>(&*this->end())) value_type(std::forward<Args>(args)...);
 		++this->next_free_space;
 	}
 

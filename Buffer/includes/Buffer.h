@@ -11,7 +11,7 @@ private:
 	char *begin, *end, *next, *back_buffer_begin, *back_buffer_end;
 	bool next_chunk_loaded, previous_chunk_loaded;
 	std::size_t buffer_size;
-	bool injected_newline;
+	bool injected_newline, seek_double_buffer_size;
 
 	std::ifstream source;
 

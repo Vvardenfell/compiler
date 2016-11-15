@@ -29,6 +29,19 @@ public:
 	String() : String(INITIAL_CAPACITY) {}
 
 	String(const String& source) : string(source.string) {}
+	String(const String& source, std::size_t capacity) : string(capacity + 1) {
+		std::size_t offset = (capacity + 1 < this->string.size() ? capacity : this->string.size());
+
+		Vector<value_type>::const_iterator source_begin = source.cbegin();
+		this->string.insert(this->string.begin(), source_begin, source_begin + offset);
+
+		this->string.push_back('\0');
+	}
+
+	String(String&& source) : string(0) {
+		using std::swap;
+		swap(*this, source);
+	}
 
 	String(const char* source, std::size_t bytes) : string(bytes + 1) {
 	    this->string.insert(this->string.end(), source, source + bytes);
@@ -117,5 +130,26 @@ bool operator==(const String& left, const String& right);
 bool operator!=(const String& left, const String& right);
 
 void swap(String& left, String& right);
+
+
+namespace std {
+
+	template<> class hash<String> {
+
+		/*
+		 * Calculates a hash with the SDBM hash function algorithm
+		 */
+		std::size_t operator()(const String& string) const {
+			std::size_t hash = 0;
+
+			for (String::const_iterator iterator = string.cbegin(), end = string.cend(); iterator != end; ++iterator) {
+				hash = *iterator + (hash << 6) + (hash << 16) - hash;
+			}
+
+			return hash;
+		}
+	};
+
+}
 
 #endif /* STRING_H */

@@ -7,6 +7,7 @@ Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
 	this->next_chunk_loaded = this->previous_chunk_loaded = false;
 	this->buffer_size = buffer_size;
 	this->injected_newline = false;
+	this->seek_double_buffer_size = false;
 
 	if (!(this->source.is_open())) {
 		throw BufferInitializationException(std::string("Failed to initialize Buffer, because the file \"") + std::string(file) + std::string("\" couldn't be opened!"));
@@ -35,7 +36,7 @@ void Buffer::read_next_chunk() {
 void Buffer::read_previous_chunk() {
 	this->injected_newline = false;
 	this->source.clear();
-	this->source.seekg(-((this->end - this->begin) + this->buffer_size), std::ios_base::cur);
+	this->source.seekg(-((this->back_buffer_end - this->back_buffer_begin) + (this->buffer_size << (this->seek_double_buffer_size ? 1 : 0))), std::ios_base::cur);
 	this->read_next_chunk();
 	this->next = this->end;
 }
@@ -48,9 +49,10 @@ void Buffer::read_next_chunk_on_demand() {
 	        this->next = this->begin;
 	    }
 	    else {
-                this->previous_chunk_loaded = true;
 	        this->read_next_chunk();
+		this->seek_double_buffer_size = true;
 	    }
+            if (this->back_buffer_begin != this->back_buffer_end) this->previous_chunk_loaded = true;
 	}
 }
 
@@ -62,25 +64,27 @@ void Buffer::read_previous_chunk_on_demand() {
 	        this->next = this->end;
 	    }
 	    else {
-	        this->next_chunk_loaded = true;
-            this->read_previous_chunk();
+		this->read_previous_chunk();
+		this->seek_double_buffer_size = false;
 	    }
+            if (this->back_buffer_begin != this->back_buffer_end) this->next_chunk_loaded = true;
 	}
 }
 
 void Buffer::switch_buffer() {
-    std::swap(this->begin, this->back_buffer_begin);
-    std::swap(this->end, this->back_buffer_end);
+    using std::swap;
+    swap(this->begin, this->back_buffer_begin);
+    swap(this->end, this->back_buffer_end);
 }
 
 char Buffer::get() {
     this->read_next_chunk_on_demand();
-	return *(this->next++);
+    return *(this->next++);
 }
 
 char Buffer::unget() {
     this->read_previous_chunk_on_demand();
-	return *(--this->next);
+    return *(--this->next);
 }
 
 Buffer::~Buffer() {

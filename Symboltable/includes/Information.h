@@ -18,7 +18,6 @@ private:
 public:
 	Information(const char* lexem, std::size_t length);
 
-	bool compare_lexem(const char* lexem) const;
 	const char* get_name() const;
 	std::size_t get_size() const;
 };
