@@ -2,7 +2,7 @@
 #include "../../Utility/exception/exception.h"
 
 Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
-	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new(buffer_size << 1));
+	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new[](buffer_size << 1));
 	this->begin = this->end = this->next = this->back_buffer_begin + buffer_size;
 	this->next_chunk_loaded = this->previous_chunk_loaded = false;
 	this->buffer_size = buffer_size;
@@ -28,13 +28,12 @@ void Buffer::read_next_chunk() {
 	this->next = this->begin;
 
 	if (this->begin == this->end) {
-		if (this->injected_newline) throw BufferBoundsExceededException("Exceeded bounds of file while trying to read chunk!");
+		if (this->injected_newline || (source.tellg() < 0 && !source.eof())) throw BufferBoundsExceededException("Exceeded bounds of file while trying to read chunk!");
 		else this->inject_newline();
 	}
 }
 
 void Buffer::read_previous_chunk() {
-	this->injected_newline = false;
 	this->source.clear();
 	this->source.seekg(-((this->back_buffer_end - this->back_buffer_begin) + (this->buffer_size << (this->seek_double_buffer_size ? 1 : 0))), std::ios_base::cur);
 	this->read_next_chunk();
@@ -83,10 +82,16 @@ char Buffer::get() {
 }
 
 char Buffer::unget() {
-    this->read_previous_chunk_on_demand();
-    return *(--this->next);
+    if (this->injected_newline) {
+        this->injected_newline = false;
+        return '\n';
+    }
+    else {
+        this->read_previous_chunk_on_demand();
+        return *(--this->next);
+    }
 }
 
 Buffer::~Buffer() {
-	::operator delete(this->begin < this->back_buffer_begin ? this->begin : this->back_buffer_begin);
+	::operator delete[](this->begin < this->back_buffer_begin ? this->begin : this->back_buffer_begin);
 }

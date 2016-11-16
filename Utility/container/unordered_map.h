@@ -193,15 +193,15 @@ public:
 	}
 
 	iterator find(const key_type& key) {
-		Vector<value_type>& values = this->buckets[this->bucket_index(key)];
-		typename Vector<value_type>::iterator iterator = this->find_entry(values, key);
+		Vector<entry_type>& values = this->buckets[this->bucket_index(key)];
+		typename Vector<entry_type>::iterator iterator = this->find_entry(values, key);
 
 		return UnorderedMapIterator<entry_type>(&values, iterator);
 	}
 
 	const_iterator find(const key_type& key) const {
-		Vector<value_type>& values = this->buckets[this->bucket_index(key)];
-		typename Vector<value_type>::const_iterator iterator = this->find_entry(values, key);
+		Vector<entry_type>& values = this->buckets[this->bucket_index(key)];
+		typename Vector<entry_type>::const_iterator iterator = this->find_entry(values, key);
 
 		return UnorderedMapIterator<const entry_type>(&values, iterator);
 	}
@@ -211,22 +211,22 @@ public:
 	}
 
 	iterator begin() {
-		typename Vector<Vector<value_type>>::iterator bucket_iterator = this->buckets.begin();
+		typename Vector<Vector<entry_type>>::iterator bucket_iterator = this->buckets.begin();
 		return UnorderedMap::iterator(bucket_iterator, bucket_iterator.begin());
 	}
 
 	const_iterator cbegin() const {
-		typename Vector<Vector<value_type>>::const_iterator bucket_iterator = this->buckets.cbegin();
+		typename Vector<Vector<entry_type>>::const_iterator bucket_iterator = this->buckets.cbegin();
 		return UnorderedMap::const_iterator(bucket_iterator, bucket_iterator.cbegin());
 	}
 
 	iterator end() {
-		typename Vector<Vector<value_type>>::iterator bucket_iterator = this->buckets.end() - 1;
+		typename Vector<Vector<entry_type>>::iterator bucket_iterator = this->buckets.end() - 1;
 		return UnorderedMap::iterator(bucket_iterator, bucket_iterator.end());
 	}
 
 	const_iterator cend() const {
-		typename Vector<Vector<value_type>>::const_iterator bucket_iterator = this->buckets.cend() - 1;
+		typename Vector<Vector<entry_type>>::const_iterator bucket_iterator = this->buckets.cend() - 1;
 		return UnorderedMap::const_iterator(bucket_iterator, bucket_iterator.cbegin());
 	}
 };
