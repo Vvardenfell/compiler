@@ -2,6 +2,7 @@
 #define EXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 class ParserException : public std::runtime_error {
 protected:
