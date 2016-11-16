@@ -43,11 +43,11 @@ public:
 		return !(*this == other);
 	}
 
-	decltype(Vector<T>::iterator::operator*()) operator*() {
+	decltype(typename std::iterator_traits<typename Vector<T>::iterator>::value_type) operator*() {
 		return *this->iterator;
 	}
 
-	decltype(Vector<T>::const_iterator::operator*()) operator*() const {
+	decltype(typename std::iterator_traits<typename Vector<T>::const_iterator>::value_type) operator*() const {
 		return *this->iterator;
 	}
 
@@ -66,6 +66,7 @@ template<typename F, typename S> struct Pair {
 	S second;
 
 	Pair(F&& first, S&& second) : first(std::forward(first)), second(std::forward(second)) {}
+	Pair(const F& first, const S& second) : first(first), second(second) {}
 
 	// TODO: implement special copy and move constructor, depending on if L or R are trivially copyable and they must not be references
 };
@@ -77,7 +78,7 @@ template<typename K, typename V, typename Hash, typename Compare> void swap(Unor
 	swap(left.buckets, right.buckets);
 	swap(left.hash, right.hash);
 	swap(left.comparator, right.comparator);
-	swap(left.size, right.size);
+	swap(left.entry_count, right.entry_count);
 	swap(left.maximum_load, right.maximum_load);
 }
 
@@ -112,7 +113,7 @@ private:
 		return values.cend();
 	}
 
-	typename Vector<entry_type>::iterator find_entry(const Vector<entry_type>& values, const key_type& key) {
+	typename Vector<entry_type>::iterator find_entry(Vector<entry_type>& values, const key_type& key) {
 		for (typename Vector<entry_type>::iterator iterator = values.begin(), end = values.end(); iterator != end; ++iterator) {
 			if (this->comparator(iterator->first, key)) return iterator;
 		}
@@ -126,9 +127,19 @@ private:
 	}
 
 	void resize_on_demand(std::size_t required_space) {
-		if (this.size() + required_space > this->maximum_load()) {
+		if (this->size() + required_space > this->maximum_load) {
 			this->resize((this->size() + required_space) * RESIZE_FACTOR);
 		}
+	}
+
+	typename Vector<entry_type>::iterator force_insert(const key_type& key, const value_type& value, typename Vector<Vector<entry_type>>::iterator hint) {
+		this->resize_on_demand(1);
+
+		auto& bucket = *hint;
+		bucket.emplace_back(key, value);
+		++this->entry_count;
+
+		return bucket.end() - 1;
 	}
 
 	UnorderedMap(UnorderedMap<key_type, value_type, hash_type, comparator_type>&& source, std::size_t bucket_capacity)
@@ -136,7 +147,7 @@ private:
 
 		auto end = source.end();
 		for (auto iterator = source.begin(); iterator != end; ++iterator) {
-			this->buckets[this->bucket_index(iterator->first)].push_back(std::move(*iterator));
+			this->buckets[this->bucket_index((*iterator).first)].push_back(std::move(*iterator));
 		}
 	}
 
@@ -155,7 +166,7 @@ public:
 	UnorderedMap(const UnorderedMap<key_type, value_type, hash_type, comparator_type>& source)
 		: buckets(source.capacity()), hash(source.hash), entry_count(source.size()), comparator(source.comparator), maximum_load(source.capacity() * LOAD_FACTOR) {
 
-		this->buckets.insert(this->buckets.begin(), source.buckets.begin(), source.buckets.end());
+		this->buckets.insert(this->buckets.begin(), source.buckets.begin(), source.buckets.cend());
 	}
 
 	UnorderedMap(UnorderedMap<key_type, value_type, hash_type, comparator_type>&& source)
@@ -178,18 +189,14 @@ public:
 
 		typename Vector<entry_type>::iterator iterator = this->find_entry(values, key);
 
-		if (iterator == values.end()) return this->force_insert(key, value, iterator);
+		if (iterator == values.end()) return UnorderedMapIterator<entry_type>(&values, this->force_insert(key, value, &values));
 		return UnorderedMapIterator<entry_type>(&values, iterator);
 	}
 
 	iterator force_insert(const key_type& key, const value_type& value, iterator hint) {
-		this->resize_on_demand(1);
+		typename Vector<entry_type>::iterator iterator = this->force_insert(key, value, hint.bucket_iterator);
 
-		auto& bucket = *hint.bucket_iterator;
-		bucket.emplace_back(key, value);
-		++this->size;
-
-		return UnorderedMapIterator<entry_type>(&bucket, bucket.end() - 1);
+		return UnorderedMapIterator<entry_type>(hint.bucket_iterator, iterator);
 	}
 
 	iterator find(const key_type& key) {

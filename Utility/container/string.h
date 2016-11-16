@@ -30,7 +30,7 @@ public:
 
 	String(const String& source) : string(source.string) {}
 	String(const String& source, std::size_t capacity) : string(capacity + 1) {
-		std::size_t offset = (capacity + 1 < this->string.size() ? capacity : this->string.size());
+		std::size_t offset = (capacity + 1 < this->source.size() ? capacity : this->source.size());
 
 		Vector<value_type>::const_iterator source_begin = source.cbegin();
 		this->string.insert(this->string.begin(), source_begin, source_begin + offset);
@@ -38,7 +38,7 @@ public:
 		this->string.push_back('\0');
 	}
 
-	String(String&& source) : string(0) {
+	String(String&& source) : String(1) {
 		using std::swap;
 		swap(*this, source);
 	}
@@ -135,7 +135,7 @@ void swap(String& left, String& right);
 namespace std {
 
 	template<> class hash<String> {
-
+		public:
 		/*
 		 * Calculates a hash with the SDBM hash function algorithm
 		 */

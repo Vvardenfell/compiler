@@ -9,14 +9,15 @@ String& String::operator=(value_type source) {
 
 String String::operator+(const String& source) const {
 	String tmp(this->size() + source.size() + 1);
-	tmp.string.insert(tmp.string.end(), this->string.cbegin(), this->string.cend());
-	tmp.string.insert(tmp.string.end(), source.string.cbegin(), source.string.cend() + 1);
+	tmp.string.insert(tmp.string.end() - 1, this->string.cbegin(), this->string.cend() - 1);
+	tmp.string.insert(tmp.string.end() - 1, source.string.cbegin(), source.string.cend());
 	return tmp;
 }
 
 String String::operator+(value_type source) const {
 	String tmp(this->size() + 2);
-	tmp.string.insert(tmp.string.end(), this->string.cbegin(), this->string.cend());
+	tmp.string.pop_back();
+	tmp.string.insert(tmp.string.end(), this->string.cbegin(), this->string.cend() - 1);
 	tmp.string.push_back(source);
 	tmp.string.push_back('\0');
 	return tmp;
@@ -24,7 +25,7 @@ String String::operator+(value_type source) const {
 
 String& String::operator+=(const String& source) {
 	if (this->string.free_capacity() >= source.size()) {
-		this->string.insert(this->string.end() - 1, source.string.cbegin(), source.string.cend());
+		this->string.insert(this->string.end() - 1, source.string.cbegin(), source.string.cend() - 1);
 	}
 	else {
 		String tmp = *this + source;
