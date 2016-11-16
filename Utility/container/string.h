@@ -30,7 +30,7 @@ public:
 
 	String(const String& source) : string(source.string) {}
 	String(const String& source, std::size_t capacity) : string(capacity + 1) {
-		std::size_t offset = (capacity + 1 < source.size() ? capacity : source.size());
+		std::size_t offset = (capacity < source.size() ? capacity : source.size());
 
 		Vector<value_type>::const_iterator source_begin = source.cbegin();
 		this->string.insert(this->string.begin(), source_begin, source_begin + offset);
