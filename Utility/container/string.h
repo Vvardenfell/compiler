@@ -136,6 +136,7 @@ namespace std {
 
 	template<> class hash<String> {
 		public:
+
 		/*
 		 * Calculates a hash with the SDBM hash function algorithm
 		 */

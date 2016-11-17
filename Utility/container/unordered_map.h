@@ -167,6 +167,7 @@ public:
 		: buckets(source.capacity()), hash(source.hash), entry_count(source.size()), comparator(source.comparator), maximum_load(source.capacity() * LOAD_FACTOR) {
 
 		this->buckets.insert(this->buckets.begin(), source.buckets.begin(), source.buckets.cend());
+
 	}
 
 	UnorderedMap(UnorderedMap<key_type, value_type, hash_type, comparator_type>&& source)
