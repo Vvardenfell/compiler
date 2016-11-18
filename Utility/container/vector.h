@@ -50,7 +50,7 @@ private:
 	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value>::type destruct() {}
 	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value>::type destruct() {
 		reverse_iterator end = this->rend();
-		for (reverse_iterator iterator = this->rbegin(); iterator < end; ++iterator) {
+		for (reverse_iterator iterator = this->rbegin(); iterator != end; ++iterator) {
 			try {
 				iterator->~U();
 			}

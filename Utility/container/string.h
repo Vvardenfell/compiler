@@ -142,7 +142,6 @@ namespace std {
 		 */
 		std::size_t operator()(const String& string) const {
 			std::size_t hash = 0;
-
 			for (String::const_iterator iterator = string.cbegin(), end = string.cend(); iterator != end; ++iterator) {
 				hash = *iterator + (hash << 6) + (hash << 16) - hash;
 			}
