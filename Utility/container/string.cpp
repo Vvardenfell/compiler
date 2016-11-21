@@ -58,7 +58,7 @@ bool operator==(const String& left, const String& right) {
 	String::const_iterator right_iterator = right.cbegin();
 	String::const_iterator left_iterator_end = left.cend(); 
 
-	for (; left_iterator != left_iterator_end; left_iterator++, right_iterator++) {
+	for (; left_iterator != left_iterator_end; ++left_iterator, ++right_iterator) {
 		if (*left_iterator != *right_iterator) return false;
 	}
 
