@@ -2,7 +2,6 @@
 #include "../includes/finite_state_machine.h"
 #include "../../Utility/character_classification.h"
 #include <limits>
-#include <iostream>
 
 
 /**

@@ -19,7 +19,7 @@ private:
 
 	Vector<value_type> string;
 
-	String(std::size_t capacity) : string(capacity) {
+	explicit String(std::size_t capacity) : string(capacity) {
 		this->string.push_back('\0');
 	}
 

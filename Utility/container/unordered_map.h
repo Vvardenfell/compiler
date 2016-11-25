@@ -4,7 +4,6 @@
 #include "../../Utility/container/string.h"
 #include "../../Utility/container/vector.h"
 #include <functional>
-#include <cstring>
 #include <iterator>
 
 template<typename T> class UnorderedMapIterator : public std::iterator<std::forward_iterator_tag, T, std::size_t> {
@@ -96,7 +95,6 @@ template<typename K, typename V, typename Hash, typename Compare> void swap(Unor
 
 template<typename K, typename V, typename Hash = std::hash<K>, typename Compare = std::equal_to<K>> class UnorderedMap {
 public:
-std::size_t duplicates = 0;
 	typedef K key_type;
 	typedef V value_type;
 	typedef Hash hash_type;
@@ -186,11 +184,7 @@ public:
 	}
 
 	UnorderedMap(const UnorderedMap<key_type, value_type, hash_type, comparator_type>& source)
-		: buckets(source.capacity()), hash(source.hash), entry_count(source.size()), comparator(source.comparator), maximum_load(source.capacity() * LOAD_FACTOR) {
-
-		this->buckets.insert(this->buckets.begin(), source.buckets.cbegin(), source.buckets.cend());
-
-	}
+		: buckets(source.buckets), hash(source.hash), entry_count(source.size()), comparator(source.comparator), maximum_load(source.capacity() * LOAD_FACTOR) {}
 
 	UnorderedMap(UnorderedMap<key_type, value_type, hash_type, comparator_type>&& source)
 		: buckets(0), hash(), entry_count(0), comparator(), maximum_load(0) {
@@ -215,7 +209,6 @@ public:
 		typename Vector<entry_type>::iterator iterator = this->find_entry(values, key);
 
 		if (iterator == values.end()) return UnorderedMapIterator<entry_type>(&values, this->force_insert(key, value, &values), this->end_iterator());
-++duplicates;
 		return UnorderedMapIterator<entry_type>(&values, iterator, this->end_iterator());
 	}
 
@@ -262,6 +255,7 @@ public:
 		typename Vector<Vector<entry_type>>::const_iterator bucket_iterator = this->buckets.cend() - 1;
 		return UnorderedMap::const_iterator(bucket_iterator, (*bucket_iterator).cend(), this->end_iterator());
 	}
+
 };
 
 template<typename K, typename V, typename Hash, typename Compare> const double UnorderedMap<K, V, Hash, Compare>::RESIZE_FACTOR = 1.4;

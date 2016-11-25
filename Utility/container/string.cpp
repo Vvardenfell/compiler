@@ -10,7 +10,7 @@ String& String::operator=(value_type source) {
 String String::operator+(const String& source) const {
 	String tmp(this->size() + source.size() + 1);
 	tmp.string.insert(tmp.string.end() - 1, this->string.cbegin(), this->string.cend() - 1);
-	tmp.string.insert(tmp.string.end() - 1, source.string.cbegin(), source.string.cend());
+	tmp.string.insert(tmp.string.end() - 1, source.string.cbegin(), source.string.cend() - 1);
 	return tmp;
 }
 

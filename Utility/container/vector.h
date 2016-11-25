@@ -75,7 +75,7 @@ public:
 
 	Vector(std::initializer_list<value_type> initializer) : Vector(initializer.begin(), initializer.end()) {}
 
-	template<typename InputIterator> Vector(InputIterator begin, InputIterator end) : Vector(begin, end, std::distance(begin, end) * RESIZE_FACTOR) {}
+	template<typename InputIterator> Vector(InputIterator begin, InputIterator end) : Vector(begin, end, std::abs(std::distance(begin, end)) * RESIZE_FACTOR) {}
 
 	template<typename InputIterator> Vector(InputIterator begin, InputIterator end, std::size_t capacity) : Vector(capacity) {
 		this->next_free_space = std::uninitialized_copy(begin, end, this->begin());
@@ -136,15 +136,29 @@ public:
 	}
 
 	template<typename InputIterator> iterator insert(iterator target, InputIterator begin, InputIterator end) {
-		std::size_t element_count = std::distance(begin, end);
+		std::size_t element_count = std::abs(std::distance(begin, end));
 		difference_type offset = std::distance(this->begin(), target);
 
 		this->resize_on_demand(element_count);
 		target = this->begin() + offset;
 
-		std::copy_backward(target, this->end(), this->end() + element_count);
+		iterator copy_begin = target;
+		iterator copy_end = copy_begin + (this->end() - target - element_count);
+		iterator uninitialized_copy_begin = (this->end() - element_count < target) ? target : this->end() - element_count;
+		iterator uninitialized_copy_end = this->end();
+
+		std::uninitialized_copy(uninitialized_copy_begin, uninitialized_copy_end, this->end());
+		if (copy_begin <= copy_end) {
+			std::copy_backward(copy_begin, copy_end, this->end() - (copy_end - copy_begin));
+			std::copy(begin, end, target);
+		}
+		else {
+			std::size_t elements_to_copy_count = uninitialized_copy_end - uninitialized_copy_begin;
+			target = std::copy(begin, begin + elements_to_copy_count, target);
+			target = std::uninitialized_copy(begin + elements_to_copy_count, end, target);
+		}
+
 		this->next_free_space += element_count;
-		std::copy(begin, end, target);
 
 		return target;
 	}
@@ -207,11 +221,11 @@ public:
 		return this->find(value) != this->cend();
 	}
 
-	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value, Vector&>::type clear() {
+	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value, Vector<value_type>&>::type clear() {
 		this->next_free_space = this->objects;
 	}
 
-	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, Vector&>::type clear() {
+	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, Vector<value_type>&>::type clear() {
 		this->destruct();
 		this->next_free_space = this->objects;
 	}
