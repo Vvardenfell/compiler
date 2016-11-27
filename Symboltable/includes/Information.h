@@ -1,25 +1,24 @@
-/*
- * Information.h
- *
- *  Created on: 23.10.2016
- *      Author: lara
- */
-
 #ifndef INFORMATION_H
 #define INFORMATION_H
 
-#include <cstddef>
+#include "../../Utility/container/string.h"
+#include "../../Utility/token.h"
 
-class Information {
-private:
-	const char* lexem;
-	const std::size_t size;
+enum class TokenType : unsigned char;
 
+struct Information {
 public:
-	Information(const char* lexem, std::size_t length);
+	const String* const lexem;
+	const TokenType type;
 
-	const char* get_name() const;
-	std::size_t get_size() const;
+
+	/*
+	 * Creates information for a certain entry containing the lexem and its type.
+	 *
+	 * @param lexem the lexem to be stored
+	 * @param type the TokenType associated with the lexem
+	 */
+	Information(const String* lexem, TokenType type) : lexem(lexem), type(type) {}
 };
 
 #endif /* INFORMATION_H */

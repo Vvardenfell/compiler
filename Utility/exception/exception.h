@@ -35,9 +35,25 @@ public:
 	UnsupportedDirectionException(const std::string& occurrence, Direction direction) : ParserException(std::string("Direction with value ") + std::to_string(static_cast<const int>(direction)) + std::string(" not supported in ") + occurrence) {}
 };
 
+enum class TokenType : unsigned char;
+class UnsupportedTokenTypeException : public ParserException {
+public:
+	UnsupportedTokenTypeException(const std::string& occurrence, TokenType type) : ParserException(std::string("TokenType with value ") + std::to_string(static_cast<const int>(type)) + std::string(" not supported in ") + occurrence) {}
+};
+
 class UnsupportedCharacterEncodingException : public ParserException {
 public:
 	UnsupportedCharacterEncodingException(const std::string& occurrence, const std::string& requested_encoding, char invalid_value) : ParserException(occurrence + std::string(" detected an unsupported encoding, when processing '") + invalid_value + std::string("'. The required encoding is ") + requested_encoding) {}
+};
+
+class CommandLineMissingArgumentsException : public ParserException {
+public:
+	CommandLineMissingArgumentsException(const char* executable) : ParserException(std::string("Usage: ") + std::string(executable) + std::string(" <IN FILE> <OUT FILE>")) {}
+};
+
+class OutputFileFailureException : public ParserException {
+public:
+	OutputFileFailureException(const char* out) : ParserException(std::string("Failed to open file ") + std::string(out) + std::string(" for writing")) {}
 };
 
 class TooManyMachineStatesException : public ParserException {

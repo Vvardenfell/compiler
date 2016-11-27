@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "../Symboltable/includes/Information.h"
+
 enum class TokenType : unsigned char {
     DEADBEEF,
 
@@ -24,6 +26,7 @@ enum class TokenType : unsigned char {
     SQUARE_BRACKET_CLOSE,
 
     INTEGER,
+    OUT_OF_RANGE_INTEGER,
     IDENTIFIER,
 
     IF,
@@ -33,5 +36,38 @@ enum class TokenType : unsigned char {
     LINE_FEED
 };
 
+class Token {
+public:
+	union {
+		Information* information;
+		long integer;
+		char error_char;
+	} value;
+	std::size_t line, column;
+	TokenType type;
+
+	Token() : line(0), column(0), type(TokenType::DEADBEEF) {
+		this->value.information = nullptr;
+	}
+
+	Token(std::size_t line, std::size_t column, char error_char) : line(line), column(column), type(TokenType::DEADBEEF) {
+		this->value.error_char = error_char;
+	}
+
+	Token(std::size_t line, std::size_t column, long integer) : line(line), column(column), type(TokenType::INTEGER) {
+		this->value.integer = integer;
+	}
+
+	Token(std::size_t line, std::size_t column, TokenType type, Information* information) : line(line), column(column), type(type) {
+		this->value.information = information;
+	}
+
+	Token(std::size_t line, std::size_t column, TokenType type) : line(line), column(column), type(type) {
+		this->value.information = nullptr;
+	}
+};
+
+std::ostream& operator<<(std::ostream& out, TokenType type);
+std::ostream& operator<<(std::ostream& out, const Token& token);
 
 #endif /* TOKEN_H */

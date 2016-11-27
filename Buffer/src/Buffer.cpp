@@ -1,7 +1,7 @@
 #include "../includes/Buffer.h"
 #include "../../Utility/exception/exception.h"
 
-Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
+Buffer::Buffer(const String& file, std::size_t buffer_size) : source(file.c_str()) {
 	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new[](buffer_size << 1));
 	this->begin = this->end = this->next = this->back_buffer_begin + buffer_size;
 	this->next_chunk_loaded = this->previous_chunk_loaded = false;
@@ -10,7 +10,7 @@ Buffer::Buffer(const char* file, std::size_t buffer_size) : source(file) {
 	this->seek_double_buffer_size = false;
 
 	if (!(this->source.is_open())) {
-		throw BufferInitializationException(std::string("Failed to initialize Buffer, because the file \"") + std::string(file) + std::string("\" couldn't be opened!"));
+		throw BufferInitializationException(std::string("Failed to initialize Buffer, because the file \"") + std::string(file.c_str()) + std::string("\" couldn't be opened!"));
 	}
 }
 

@@ -2,7 +2,7 @@
 #define BUFFER_H
 
 #include <fstream>
-#include <string>
+#include "../../Utility/container/string.h"
 
 
 class Buffer {
@@ -23,7 +23,7 @@ private:
 	void inject_newline();
 
 public:
-	explicit Buffer(const char* file, std::size_t buffer_size = BUFFER_SIZE);
+	explicit Buffer(const String& file, std::size_t buffer_size = BUFFER_SIZE);
 	~Buffer();
 
 	Buffer(const Buffer& source) = delete;
