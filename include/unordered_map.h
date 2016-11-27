@@ -1,8 +1,8 @@
 #ifndef UNORDERED_MAP_H
 #define UNORDERED_MAP_H
 
-#include "../../Utility/container/string.h"
-#include "../../Utility/container/vector.h"
+#include "string.h"
+#include "vector.h"
 #include <functional>
 #include <iterator>
 
@@ -46,8 +46,8 @@ public:
 	}
 
 	bool operator==(const UnorderedMapIterator& other) const {
-		return this->iterator == other.iterator && this->bucket_iterator == other.bucket_iterator
-			|| this->iterator == (*this->bucket_iterator).end() && other.iterator == (*other.bucket_iterator).end();
+		return (this->iterator == other.iterator && this->bucket_iterator == other.bucket_iterator)
+			|| (this->iterator == (*this->bucket_iterator).end() && other.iterator == (*other.bucket_iterator).end());
 	}
 
 	bool operator!=(const UnorderedMapIterator& other) const {
@@ -180,7 +180,7 @@ public:
 	friend void swap<>(UnorderedMap<key_type, value_type, hash_type, comparator_type>& left, UnorderedMap<key_type, value_type, hash_type, comparator_type>& right);
 
 	explicit UnorderedMap(std::size_t bucket_capacity = INITIAL_BUCKET_CAPACITY, hash_type hash = hash_type(), comparator_type comparator = comparator_type())
-		: buckets(bucket_capacity, Vector<entry_type>(2)), hash(hash), entry_count(0), comparator(comparator), maximum_load(bucket_capacity * LOAD_FACTOR) {}
+		: buckets(bucket_capacity, Vector<entry_type>(2)), hash(hash), comparator(comparator), entry_count(0), maximum_load(bucket_capacity * LOAD_FACTOR) {}
 
 	UnorderedMap(hash_type hash, comparator_type comparator = comparator_type()) : UnorderedMap(INITIAL_BUCKET_CAPACITY, hash, comparator) {}
 	UnorderedMap(comparator_type comparator) : UnorderedMap(hash_type(), comparator) {}

@@ -2,7 +2,7 @@
 #define CHARACTER_CLASSIFICATION_H
 
 inline bool is_alpha(char symbol) {
-    return symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z';
+    return (symbol >= 'a' && symbol <= 'z') || (symbol >= 'A' && symbol <= 'Z');
 }
 
 inline bool is_digit(char symbol) {

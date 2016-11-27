@@ -1,6 +1,6 @@
-#include "../../Utility/exception/exception.h"
-#include "../includes/finite_state_machine.h"
-#include "../../Utility/character_classification.h"
+#include "exception.h"
+#include "finite_state_machine.h"
+#include "character_classification.h"
 #include <limits>
 
 
@@ -74,7 +74,7 @@ void FiniteStateMachine::branch_matrix_entry(const Transition *transition, state
 void FiniteStateMachine::branch_matrix_entry(state_type symbol, state_type current_state_index, state_type next_state_index) {
     this->check_encoding(symbol);
 
-    state_type stored_next_state_index = this->branch_matrix.get(current_state_index, symbol);
+    //state_type stored_next_state_index = this->branch_matrix.get(current_state_index, symbol);
     //if (stored_next_state_index != FiniteStateMachine::CRASH_STATE_ID && stored_next_state_index != next_state_index) throw 1; // TODO: throw proper exception, if the given graph of States and Transitions results in a non-deterministic machine
 
     this->branch_matrix.set(current_state_index, symbol, next_state_index);
@@ -90,11 +90,14 @@ void FiniteStateMachine::branch_matrix_entry(const TypeTransition& transition, s
 
 bool FiniteStateMachine::is_final_state(const State* state) const {
     switch(this->states[this->current_state]->type()) {
-        case StateType::FINAL:
-        case StateType::CALLBACK_FINAL:
-            return true;
+    case StateType::FINAL:
+    case StateType::CALLBACK_FINAL:
+        return true;
+    case StateType::REGULAR:
+        return false;
     }
-    return false;
+
+    return false; // TODO:: throw exception if StateType is not supported
 }
 
 void FiniteStateMachine::trigger_callback_state_handler(const State* state, Direction direction, char symbol) const {

@@ -1,5 +1,5 @@
 #include "file_position.h"
-#include "../Automaton/includes/finite_state_machine.h"
+#include "finite_state_machine.h"
 
 void FilePosition::on_state_change(Direction direction, char symbol) {
 	switch(direction) {

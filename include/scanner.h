@@ -1,10 +1,10 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include "../../Utility/container/string.h"
-#include "../../Utility/file_position.h"
-#include "../../Symboltable/includes/Symboltable.h"
-#include "../../Buffer/includes/Buffer.h"
+#include "string.h"
+#include "file_position.h"
+#include "symboltable.h"
+#include "buffer.h"
 
 class Scanner {
 private:

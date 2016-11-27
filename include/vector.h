@@ -222,11 +222,15 @@ public:
 
 	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value, Vector<value_type>&>::type clear() {
 		this->next_free_space = this->objects;
+
+		return *this;
 	}
 
 	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, Vector<value_type>&>::type clear() {
 		this->destruct();
 		this->next_free_space = this->objects;
+
+		return *this;
 	}
 
 	~Vector() {

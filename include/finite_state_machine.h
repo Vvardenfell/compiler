@@ -4,9 +4,9 @@
 #include <limits>
 #include <iterator>
 #include <functional>
-#include "../../Utility/container/vector.h"
-#include "../../Utility/token.h"
-#include "../../Utility/exception/exception.h"
+#include "vector.h"
+#include "token.h"
+#include "exception.h"
 
 
 enum class StateType {

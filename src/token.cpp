@@ -1,5 +1,5 @@
 #include "token.h"
-#include "exception/exception.h"
+#include "exception.h"
 #include <ostream>
 
 std::ostream& operator<<(std::ostream& out, TokenType type) {
@@ -53,6 +53,7 @@ std::ostream& operator<<(std::ostream& out, const Token& token) {
 		const Information& information = *token.value.information;
 		out.write((information.lexem)->c_str(), (information.lexem)->size());
 		break; }
+	default: { /* pass - don't handle other TokenTypes in a special way */ }
 	}
 
 	return out;

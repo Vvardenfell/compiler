@@ -2,7 +2,7 @@
 #define BUFFER_H
 
 #include <fstream>
-#include "../../Utility/container/string.h"
+#include "string.h"
 
 
 class Buffer {

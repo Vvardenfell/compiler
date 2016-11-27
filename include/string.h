@@ -2,9 +2,13 @@
 #define STRING_H
 
 #include <algorithm>
-#include <cstring>
+//#include <cstring>
 #include <iterator>
 #include "vector.h"
+
+namespace std {
+std::size_t strlen(const char* source);
+}
 
 class String {
 public:

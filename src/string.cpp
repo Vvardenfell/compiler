@@ -1,5 +1,11 @@
 #include "string.h"
 
+std::size_t std::strlen(const char* source) {
+	std::size_t size = 0;
+	while(*(source++) != '\0') ++size;
+	return size;
+}
+
 String& String::operator=(value_type source) {
 	string = Vector<value_type>(String::INITIAL_CAPACITY);
 	string.push_back(source);

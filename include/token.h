@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "../Symboltable/includes/Information.h"
+#include "information.h"
 
 enum class TokenType : unsigned char {
     DEADBEEF,

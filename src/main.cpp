@@ -1,4 +1,4 @@
-#include "Scanner/includes/Scanner.h"
+#include "scanner.h"
 #include <iostream>
 
 enum Exit {

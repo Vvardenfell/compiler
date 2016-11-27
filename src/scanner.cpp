@@ -1,9 +1,9 @@
-#include "../../Automaton/includes/finite_state_machine.h"
-#include "../../Utility/container/string.h"
-#include "../../Utility/character_classification.h"
-#include "../../Buffer/includes/Buffer.h"
-#include "../../Utility/exception/exception.h"
-#include "../../Scanner/includes/Scanner.h"
+#include "finite_state_machine.h"
+#include "string.h"
+#include "character_classification.h"
+#include "buffer.h"
+#include "exception.h"
+#include "scanner.h"
 
 FiniteStateMachine init_finite_state_machine(const std::function<void(Direction, char)>& line_count_callback) {
 
@@ -258,7 +258,7 @@ Token Scanner::next_token() {
 
 					switch(token_type) {
 					case TokenType::COMMENT: {
-						std::size_t last_line_length = std::distance(actual_lexem.find_last_of("\r\n"), actual_lexem.cend()) - 1;
+						long last_line_length = std::distance(actual_lexem.find_last_of("\r\n"), actual_lexem.cend()) - 1;
 						this->file_position.increment_column(last_line_length == -1 ? actual_lexem.size() : last_line_length);
 						break; }
 					case TokenType::INTEGER: {
@@ -286,4 +286,6 @@ Token Scanner::next_token() {
 			}
 		}
 	}
+
+	throw TokenGeneratingException("Scanner::next_token()");
 }

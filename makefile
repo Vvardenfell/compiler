@@ -1,45 +1,60 @@
-#
-#	baut das komplette Scanner Projekt
-#
-OBJDIR = objs
+SRCS = finite_state_machine.cpp buffer.cpp scanner.cpp file_position.cpp token.cpp string.cpp main.cpp
+EXEC = foobar
 
-AUTOMATDIR = Automat
+CPPFLAGS = -Iinclude
 
-BUFFERDIR = Buffer
-
-SYMBOLTABLEDIR = Symboltable
-
-SCANNERDIR = Scanner
+CFLAGS = -std=c11 -O3 -Wall -pedantic
+CXXFLAGS = -std=c++11 -O3 -Wall -pedantic
 
 
+DEPDIR = .dep
+OBJDIR = obj
+SRCDIR = src
+OUTDIR = bin
+$(shell mkdir -p $(DEPDIR) > /dev/null)
+$(shell mkdir -p $(OBJDIR) > /dev/null)
+$(shell mkdir -p $(SRCDIR) > /dev/null)
+$(shell mkdir -p $(OUTDIR) > /dev/null)
 
-all:	automatOBJs bufferOBJs symboltableOBJs scanner  
-	@echo "target all"
+OBJS = $(addprefix $(OBJDIR)/,$(SRCS:.cpp=.o))
 
-	
-# rm 	remove
-# -f	force, ohne nachfragen
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
+
+COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+COMPILE.cc = $(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
+
+.PHONY: clean
+
+all: $(EXEC)
+
+$(EXEC): $(OBJS)
+	$(CXX) $(OBJS) -o $(OUTDIR)/$(EXEC)
+
 clean:
-	rm -f $(AUTOMATDIR)/$(OBJDIR)/*.o
-	rm -f $(BUFFERDIR)/$(OBJDIR)/*.o
-	rm -f $(SYMBOLTABLEDIR)/$(OBJDIR)/*.o
-	rm -f $(SCANNERDIR)/$(OBJDIR)/*.o
-	rm -f $(SCANNERDIR)/debug/*
-	
+	$(RM) $(DEPDIR)/*.d $(DEPDIR)/*.Td $(DEPDIR)/*~ $(OBJDIR)/*.o $(OBJDIR)/*~ $(OUTDIR)/*~ $(OUTDIR)/$(EXEC) $(SRCDIR)/*~
 
-automatOBJs:
-	$(MAKE) -C $(AUTOMATDIR) AutomatOBJTarget
-	
-	
-bufferOBJs:
-	$(MAKE) -C $(BUFFERDIR) BufferOBJTarget
+$(OBJDIR)/%.o : $(SRCDIR)/%.c
+$(OBJDIR)/%.o : $(SRCDIR)/%.c $(DEPDIR)/%.d
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
 
-	
-symboltableOBJs:
-	$(MAKE) -C $(SYMBOLTABLEDIR) SymboltableOBJTarget
-	
+$(OBJDIR)/%.o : $(SRCDIR)/%.cc
+$(OBJDIR)/%.o : $(SRCDIR)/%.cc $(DEPDIR)/%.d
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
 
-scanner: 
-	$(MAKE) -C $(SCANNERDIR) makeTestScanner
+$(OBJDIR)/%.o : $(SRCDIR)/%.cxx
+$(OBJDIR)/%.o : $(SRCDIR)/%.cxx $(DEPDIR)/%.d
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
 
-	
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(DEPDIR)/%.d
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	$(POSTCOMPILE)
+
+$(DEPDIR)/%.d: ;
+.PRECIOUS: $(DEPDIR)/%.d
+
+-include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SRCS)))

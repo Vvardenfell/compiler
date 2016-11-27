@@ -1,5 +1,5 @@
-#include "../includes/Buffer.h"
-#include "../../Utility/exception/exception.h"
+#include "buffer.h"
+#include "exception.h"
 
 Buffer::Buffer(const String& file, std::size_t buffer_size) : source(file.c_str()) {
 	this->back_buffer_begin = this->back_buffer_end = static_cast<char*>(::operator new[](buffer_size << 1));

@@ -1,8 +1,7 @@
 #ifndef INFORMATION_H
 #define INFORMATION_H
 
-#include "../../Utility/container/string.h"
-#include "../../Utility/token.h"
+#include "string.h"
 
 enum class TokenType : unsigned char;
 

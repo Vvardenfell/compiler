@@ -1,11 +1,11 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
-#include "../../Utility/container/string.h"
-#include "../../Utility/container/unordered_map.h"
-#include "../../Utility/container/binary_graveyard.h"
+#include "string.h"
+#include "unordered_map.h"
+#include "binary_graveyard.h"
 #include <functional>
-#include <cstring>
+//#include <cstring>
 
 class Symboltable {
 public:

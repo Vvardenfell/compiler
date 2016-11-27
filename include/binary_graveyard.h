@@ -106,7 +106,7 @@ private:
 	}
 
 	bool create_grave_on_demand(std::size_t required_space) {
-		if (required_space > std::distance(this->next_free_space, this->end_free_space)) {
+		if (required_space > static_cast<std::size_t>(std::distance(this->next_free_space, this->end_free_space))) {
 			this->create_grave(required_space + alignof(value_type));
 			return true;
 		}

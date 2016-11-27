@@ -51,6 +51,11 @@ public:
 	CommandLineMissingArgumentsException(const char* executable) : ParserException(std::string("Usage: ") + std::string(executable) + std::string(" <IN FILE> <OUT FILE>")) {}
 };
 
+class TokenGeneratingException : public ParserException {
+public:
+	TokenGeneratingException(const std::string& occurrence) : ParserException(std::string("Failed to generate token in ") + occurrence) {}
+};
+
 class OutputFileFailureException : public ParserException {
 public:
 	OutputFileFailureException(const char* out) : ParserException(std::string("Failed to open file ") + std::string(out) + std::string(" for writing")) {}

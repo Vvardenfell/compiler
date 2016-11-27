@@ -2,7 +2,7 @@
 #define FILE_POSITION_H
 
 #include <cstddef>
-#include "../Automaton/includes/finite_state_machine.h"
+#include "finite_state_machine.h"
 
 class FilePosition {
 private:
