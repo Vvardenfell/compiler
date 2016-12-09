@@ -146,9 +146,9 @@ public:
 		iterator uninitialized_copy_begin = (this->end() - element_count < target) ? target : this->end() - element_count;
 		iterator uninitialized_copy_end = this->end();
 
-		std::uninitialized_copy(uninitialized_copy_begin, uninitialized_copy_end, this->end());
+		std::uninitialized_copy(uninitialized_copy_begin, uninitialized_copy_end, this->end() + (element_count - std::distance(uninitialized_copy_begin, uninitialized_copy_end)));
 		if (copy_begin <= copy_end) {
-			std::copy_backward(copy_begin, copy_end, this->end() - (copy_end - copy_begin));
+			std::copy_backward(copy_begin, copy_end, this->end());
 			std::copy(begin, end, target);
 		}
 		else {
