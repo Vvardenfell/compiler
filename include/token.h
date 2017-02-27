@@ -30,7 +30,13 @@ enum class TokenType : unsigned char {
     IDENTIFIER,
 
     IF,
+    ELSE,
     WHILE,
+
+    READ,
+    WRITE,
+
+    INT,
 
     COMMENT,
     LINE_FEED

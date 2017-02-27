@@ -218,6 +218,11 @@ void Scanner::init_symboltable() {
 	this->symboltable.insert("WHILE", TokenType::WHILE);
 	this->symboltable.insert("if", TokenType::IF);
 	this->symboltable.insert("IF", TokenType::IF);
+	this->symboltable.insert("else", TokenType::ELSE);
+	this->symboltable.insert("ELSE", TokenType::ELSE);
+	this->symboltable.insert("read", TokenType::READ);
+	this->symboltable.insert("write", TokenType::WRITE);
+	this->symboltable.insert("int", TokenType::INT);
 }
 
 Token* Scanner::make_integer_token(const String& lexem) {
