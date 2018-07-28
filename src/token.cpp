@@ -27,7 +27,11 @@ std::ostream& operator<<(std::ostream& out, TokenType type) {
 	case TokenType::OUT_OF_RANGE_INTEGER: return out.write("OUT_OF_RANGE_INTEGER", 20);
 	case TokenType::IDENTIFIER: return out.write("IDENTIFIER", 10);
 	case TokenType::IF: return out.write("IF", 2);
+	case TokenType::ELSE: return out.write("ELSE", 4);
 	case TokenType::WHILE: return out.write("WHILE", 5);
+	case TokenType::READ: return out.write("READ", 4);
+	case TokenType::WRITE: return out.write("WRITE", 5);
+	case TokenType::INT: return out.write("INT", 3);
 	case TokenType::COMMENT: return out.write("COMMENT", 7);
 	case TokenType::LINE_FEED: return out.write("LINE_FEED", 9);
 	default: throw UnsupportedTokenTypeException("operator<<(std::ostream& out, TokenType type)", type);
