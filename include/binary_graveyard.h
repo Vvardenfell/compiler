@@ -1,3 +1,6 @@
+#ifndef BINARY_GRAVEYARD_H
+#define BINARY_GRAVEYARD_H
+
 #include "vector.h"
 
 template<typename T> class BinaryGraveyard;
@@ -122,6 +125,8 @@ private:
 			catch(...) {}
 		}
 	}
+
+
 public:
 
 	friend void swap<>(BinaryGraveyard<value_type>& left, BinaryGraveyard<value_type>& right);
@@ -191,5 +196,6 @@ public:
 		}
 	}
 
-
 };
+
+#endif /* BINARY_GRAVEYARD_H */
