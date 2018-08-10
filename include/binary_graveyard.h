@@ -98,23 +98,23 @@ private:
 		return reinterpret_cast<std::size_t*>((reinterpret_cast<std::size_t>(grave) - 1) & (~(alignof(std::size_t) - 1)));
 	}
 
-	void create_grave(std::size_t required_space) {
+	void dig_grave(std::size_t required_space) {
 		this->next_free_space = static_cast<char*>(::operator new(((required_space - 1) | (GRAVE_CAPACITY - 1)) + 1));
 		this->end_free_space = this->next_free_space + required_space;
 
 		this->graveyard.push_back(this->next_free_space);
 	}
 
-	bool create_grave_on_demand(std::size_t required_space) {
+	bool dig_grave_on_demand(std::size_t required_space) {
 		if (required_space > static_cast<std::size_t>(std::distance(this->next_free_space, this->end_free_space))) {
-			this->create_grave(required_space + alignof(value_type));
+			this->dig_grave(required_space + alignof(value_type));
 			return true;
 		}
 		return false;
 	}
 
-	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value>::type destruct() {}
-	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value>::type destruct() {
+	template<typename U = value_type> typename std::enable_if<std::is_trivially_destructible<U>::value>::type desecrate() {}
+	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value>::type desecrate() {
 		for (iterator iterator = this->begin(), end = this->end(); iterator != end; ++iterator) {
 			try {
 				(*iterator).~U();
@@ -156,7 +156,7 @@ public:
 		pointer_type value_address;
 		std::size_t required_space = this->required_space(size_address, value_address, count);
 
-		if (this->create_grave_on_demand(required_space)) this->required_space(size_address, value_address, count);
+		if (this->dig_grave_on_demand(required_space)) this->required_space(size_address, value_address, count);
 
 		*size_address = count;
 		std::uninitialized_copy(corpse, corpse + count, value_address);
@@ -183,7 +183,7 @@ public:
 	}
 
 	~BinaryGraveyard() {
-		this->destruct();
+		this->desecrate();
 
 		Vector<void*>::iterator end = this->graveyard.end();
 		for (Vector<void*>::iterator iterator = this->graveyard.begin(); iterator != end; ++iterator) {
