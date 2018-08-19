@@ -55,7 +55,7 @@ public:
 	String(const char* source) : String(source, std::strlen(source)) {}
 
 	String(const_iterator begin, const_iterator end) : String(begin, std::distance(begin, end)) {}
-	
+
 	String& operator=(String source) {
 		swap(*this, source);
 		return *this;
@@ -135,23 +135,25 @@ bool operator!=(const String& left, const String& right);
 
 void swap(String& left, String& right);
 
+std::ostream& operator<<(std::ostream& out, const String& string);
+
 
 namespace std {
 
 	template<> class hash<String> {
-		public:
+    public:
 
-		/*
-		 * Calculates a hash with the SDBM hash function algorithm
-		 */
-		std::size_t operator()(const String& string) const {
-			std::size_t hash = 0;
-			for (String::const_iterator iterator = string.cbegin(), end = string.cend(); iterator != end; ++iterator) {
-				hash = *iterator + (hash << 6) + (hash << 16) - hash;
-			}
+        /*
+        * Calculates a hash with the SDBM hash function algorithm
+        */
+        std::size_t operator()(const String& string) const {
+            std::size_t hash = 0;
+            for (String::const_iterator iterator = string.cbegin(), end = string.cend(); iterator != end; ++iterator) {
+                hash = *iterator + (hash << 6) + (hash << 16) - hash;
+            }
 
-			return hash;
-		}
+            return hash;
+        }
 	};
 
 }

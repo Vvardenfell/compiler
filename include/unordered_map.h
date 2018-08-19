@@ -5,13 +5,17 @@
 #include "vector.h"
 #include <functional>
 #include <iterator>
+#include <type_traits>
 
 template<typename T> class UnorderedMapIterator : public std::iterator<std::forward_iterator_tag, T, std::size_t> {
 private:
 	template<typename K, typename V, typename Hash, typename Compare> friend class UnorderedMap;
 
-	typedef typename Vector<Vector<T>>::iterator bucket_iterator_type;
-	typedef typename Vector<T>::iterator iterator_type;
+	typedef typename std::remove_const<T>::type NonConstT;
+	typedef typename Vector<Vector<NonConstT>>::iterator bucket_iterator_type;
+	typedef typename Vector<NonConstT>::iterator iterator_type;
+	typedef typename Vector<Vector<NonConstT>>::const_iterator const_bucket_iterator_type;
+	typedef typename Vector<NonConstT>::const_iterator const_iterator_type;
 
 	bucket_iterator_type bucket_iterator;
 	iterator_type iterator;
@@ -34,6 +38,11 @@ public:
 		if (!end_iterator && iterator == (*bucket_iterator).end()) this->next();
 	}
 
+    UnorderedMapIterator(const_bucket_iterator_type bucket_iterator, const_iterator_type iterator, const_iterator_type end, bool end_iterator = false)
+		: bucket_iterator(const_cast<bucket_iterator_type>(bucket_iterator)), iterator(const_cast<iterator_type>(iterator)), end(const_cast<iterator_type>(end)) {
+		if (!end_iterator && iterator == (*bucket_iterator).cend()) this->next();
+	}
+
 	UnorderedMapIterator& operator++() {
 		this->next();
 		return *this;
@@ -54,7 +63,7 @@ public:
 		return !(*this == other);
 	}
 
-	typename std::iterator_traits<typename Vector<T>::iterator>::value_type& operator*() {
+    typename std::iterator_traits<typename std::conditional<std::is_const<T>::value, typename Vector<NonConstT>::const_iterator, typename Vector<NonConstT>::iterator>::type>::value_type& operator*() {
 		return *this->iterator;
 	}
 
@@ -150,7 +159,7 @@ private:
 		Vector<entry_type>* bucket = &*hint;
 
 		if (this->resize_on_demand(1)) bucket = &this->buckets[this->bucket_index(key)];
-			
+
 		bucket->emplace_back(key, value);
 		++this->entry_count;
 
@@ -191,10 +200,10 @@ public:
 	}
 
 	UnorderedMap(const UnorderedMap<key_type, value_type, hash_type, comparator_type>& source)
-		: buckets(source.buckets), hash(source.hash), entry_count(source.size()), comparator(source.comparator), maximum_load(source.capacity() * LOAD_FACTOR) {}
+		: buckets(source.buckets), hash(source.hash), comparator(source.comparator), entry_count(source.size()), maximum_load(source.capacity() * LOAD_FACTOR) {}
 
 	UnorderedMap(UnorderedMap<key_type, value_type, hash_type, comparator_type>&& source)
-		: buckets(0), hash(), entry_count(0), comparator(), maximum_load(0) {
+		: buckets(0), hash(), comparator(), entry_count(0), maximum_load(0) {
 
 		swap(*this, source);
 	}
@@ -233,10 +242,10 @@ public:
 	}
 
 	const_iterator find(const const_key_type& key) const {
-		Vector<entry_type>& values = this->buckets[this->bucket_index(key)];
+		const Vector<entry_type>& values = this->buckets[this->bucket_index(key)];
 		typename Vector<entry_type>::const_iterator iterator = this->find_entry(values, key);
 
-		return UnorderedMapIterator<const entry_type>(&values, iterator, this->end_iterator());
+		return UnorderedMapIterator<const entry_type>(&values, iterator, this->end_iterator(), true);
 	}
 
 	std::size_t size() const {

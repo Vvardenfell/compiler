@@ -50,7 +50,7 @@ String& String::operator+=(value_type source) {
 String::const_iterator String::find_last_of(const char* sequence) const {
 	for (String::const_reverse_iterator current = this->rbegin(); current != this->rend(); ++current) {
 		for (const char* search_current = sequence; *search_current != '\0'; ++search_current) {
-			if (*current == *search_current) return current.base();
+			if (*current == *search_current) return current.base() - 1;
 		}
 	}
 
@@ -58,11 +58,11 @@ String::const_iterator String::find_last_of(const char* sequence) const {
 }
 
 bool operator==(const String& left, const String& right) {
-	if (left.size() != right.size()) return false; 
+	if (left.size() != right.size()) return false;
 
 	String::const_iterator left_iterator = left.cbegin();
 	String::const_iterator right_iterator = right.cbegin();
-	String::const_iterator left_iterator_end = left.cend(); 
+	String::const_iterator left_iterator_end = left.cend();
 
 	for (; left_iterator != left_iterator_end; ++left_iterator, ++right_iterator) {
 		if (*left_iterator != *right_iterator) return false;
@@ -78,4 +78,8 @@ bool operator!=(const String& left, const String& right) {
 void swap(String& left, String& right) {
 	using std::swap;
 	swap(left.string, right.string);
+}
+
+std::ostream& operator<<(std::ostream& out, const String& string) {
+    return out.write(string.c_str(), string.size());
 }

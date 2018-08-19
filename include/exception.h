@@ -32,13 +32,13 @@ public:
 enum class Direction;
 class UnsupportedDirectionException : public ParserException {
 public:
-	UnsupportedDirectionException(const std::string& occurrence, Direction direction) : ParserException(std::string("Direction with value ") + std::to_string(static_cast<const int>(direction)) + std::string(" not supported in ") + occurrence) {}
+	UnsupportedDirectionException(const std::string& occurrence, Direction direction) : ParserException(std::string("Direction with value ") + std::to_string(static_cast<unsigned int>(direction)) + std::string(" not supported in ") + occurrence) {}
 };
 
-enum class TokenType : unsigned char;
+#include "token.h"
 class UnsupportedTokenTypeException : public ParserException {
 public:
-	UnsupportedTokenTypeException(const std::string& occurrence, TokenType type) : ParserException(std::string("TokenType with value ") + std::to_string(static_cast<const int>(type)) + std::string(" not supported in ") + occurrence) {}
+	UnsupportedTokenTypeException(const std::string& occurrence, TokenType type) : ParserException(std::string("TokenType with value ") + std::to_string(static_cast<unsigned int>(type)) + std::string(" not supported in ") + occurrence) {}
 };
 
 class UnsupportedCharacterEncodingException : public ParserException {
@@ -71,10 +71,32 @@ public:
 	FatalException(const std::string& occurrence, const std::string& description) : ParserException(std::string("Error in ") + occurrence + std::string(": ") + description) {}
 };
 
-enum class TransitionType;
+enum class TransitionType : unsigned char;
 class UnsupportedTransitionException : public ParserException {
 public:
 	UnsupportedTransitionException(const std::string& occurrence, TransitionType type) : ParserException(std::string("Unsupported Transition of TransitionType value ") + std::to_string(static_cast<int>(type)) + std::string(" in ") + occurrence) {}
+};
+
+class NoStartStateException : public ParserException {
+public:
+    NoStartStateException(const std::string& occurrence) : ParserException(std::string(occurrence + std::string("Can't create ParseMachine without a start state"))) {}
+};
+
+class TooManyProductionRulesException : public ParserException {
+public:
+	TooManyProductionRulesException(const std::string& occurrence, size_t maximum) : ParserException(occurrence + std::string(" exceeded the maximum amount of  ") + std::to_string(maximum) + std::string(" production rules")) {}
+};
+
+#include "grammar.h"
+class UnsupportedVariableException : public ParserException {
+public:
+	UnsupportedVariableException(const std::string& occurrence, Grammar::Variable variable) : ParserException(std::string("Variable with value ") + std::to_string(static_cast<unsigned int>(variable)) + std::string(" not supported in ") + occurrence) {}
+};
+
+#include "information.h"
+class UnsupportedFundamentalTypeException : public ParserException {
+public:
+	UnsupportedFundamentalTypeException(const std::string& occurrence, FundamentalType type) : ParserException(std::string("FundamentalType with value ") + std::to_string(static_cast<unsigned int>(type)) + std::string(" not supported in ") + occurrence) {}
 };
 
 #endif /* EXCEPTION_H */

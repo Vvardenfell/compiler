@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include "information.h"
+#include "string.h"
 
 enum class TokenType : unsigned char {
     DEADBEEF,
@@ -39,7 +40,11 @@ enum class TokenType : unsigned char {
     INT,
 
     COMMENT,
-    LINE_FEED
+    LINE_FEED,
+
+    EPSILON,
+
+    ENUM_ENTRY_COUNT
 };
 
 class Token {
@@ -50,30 +55,44 @@ public:
 		char error_char;
 	} value;
 	std::size_t line, column;
-	TokenType type;
+	TokenType token_type;
 
-	Token() : line(0), column(0), type(TokenType::DEADBEEF) {
+	Token() : line(0), column(0), token_type(TokenType::DEADBEEF) {
 		this->value.information = nullptr;
 	}
 
-	Token(std::size_t line, std::size_t column, char error_char) : line(line), column(column), type(TokenType::DEADBEEF) {
+	Token(std::size_t line, std::size_t column, char error_char) : line(line), column(column), token_type(TokenType::DEADBEEF) {
 		this->value.error_char = error_char;
 	}
 
-	Token(std::size_t line, std::size_t column, long integer) : line(line), column(column), type(TokenType::INTEGER) {
+	Token(std::size_t line, std::size_t column, long integer) : line(line), column(column), token_type(TokenType::INTEGER) {
 		this->value.integer = integer;
 	}
 
-	Token(std::size_t line, std::size_t column, TokenType type, Information* information) : line(line), column(column), type(type) {
+	Token(std::size_t line, std::size_t column, TokenType token_type, Information* information) : line(line), column(column), token_type(token_type) {
 		this->value.information = information;
 	}
 
-	Token(std::size_t line, std::size_t column, TokenType type) : line(line), column(column), type(type) {
+	Token(std::size_t line, std::size_t column, TokenType token_type) : line(line), column(column), token_type(token_type) {
 		this->value.information = nullptr;
 	}
+
+	TokenType get_token_type() const {
+	    return this->token_type;
+	}
+
+	FundamentalType get_data_type() const {
+	    return this->value.information->data_type;
+	}
+
+	void set_data_type(FundamentalType data_type) {
+	    this->value.information->data_type = data_type;
+	}
+
+	String to_string() const;
 };
 
-std::ostream& operator<<(std::ostream& out, TokenType type);
+std::ostream& operator<<(std::ostream& out, TokenType token_type);
 std::ostream& operator<<(std::ostream& out, const Token& token);
 
 #endif /* TOKEN_H */

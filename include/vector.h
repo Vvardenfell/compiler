@@ -193,7 +193,7 @@ public:
 	}
 
 	template<typename U = value_type> typename std::enable_if<!std::is_trivially_destructible<U>::value, value_type>::type pop_back() {
-		value_type tmp(*(--this->next_free_space));
+		value_type tmp(std::move(*(--this->next_free_space)));
 
 		this->next_free_space->~value_type();
 

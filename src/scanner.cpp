@@ -236,59 +236,65 @@ Token* Scanner::make_integer_token(const String& lexem) {
 
 	return &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), integer));
 }
-	
+
 Token Scanner::next_token() {
 
 	while (char current = this->buffer.get()) {
 		this->lexem += current;
 
-		if (!this->finite_state_machine.process(current)) {
-			Token* token = nullptr;
-			std::size_t steps_since_last_final_state = this->finite_state_machine.get_steps_since_last_final_state();
+		try {
+            if (!this->finite_state_machine.process(current)) {
+                Token* token = nullptr;
+                std::size_t steps_since_last_final_state = this->finite_state_machine.get_steps_since_last_final_state();
 
-			if (steps_since_last_final_state == this->lexem.size()) {
-				if (!is_space(this->lexem[0])) {
-					token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), this->lexem[0]));
-					for (std::size_t steps_back = steps_since_last_final_state; steps_back > 1; steps_back--) this->buffer.unget();
-				}
-				this->file_position.increment_column();
-			}
-			else {
-				for (std::size_t steps_back = steps_since_last_final_state; steps_back > 0; steps_back--) this->buffer.unget();
+                if (steps_since_last_final_state == this->lexem.size()) {
+                    if (!is_space(this->lexem[0])) {
+                        token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), this->lexem[0]));
+                        for (std::size_t steps_back = steps_since_last_final_state; steps_back > 1; steps_back--) this->buffer.unget();
+                    }
+                    this->file_position.increment_column();
+                }
+                else {
+                    for (std::size_t steps_back = steps_since_last_final_state; steps_back > 0; steps_back--) this->buffer.unget();
 
-				TokenType token_type = this->finite_state_machine.get_last_final_state().token();
+                    TokenType token_type = this->finite_state_machine.get_last_final_state().token();
 
-				if (token_type != TokenType::LINE_FEED) {
-					String actual_lexem(this->lexem.begin(), this->lexem.end() - steps_since_last_final_state);
+                    if (token_type != TokenType::LINE_FEED) {
+                        String actual_lexem(this->lexem.begin(), this->lexem.end() - steps_since_last_final_state);
 
-					switch(token_type) {
-					case TokenType::COMMENT: {
-						long last_line_length = std::distance(actual_lexem.find_last_of("\r\n"), actual_lexem.cend()) - 1;
-						this->file_position.increment_column(last_line_length == -1 ? actual_lexem.size() : last_line_length);
-						break; }
-					case TokenType::INTEGER: {
-						token = this->make_integer_token(actual_lexem);
-						this->file_position.increment_column(actual_lexem.size());
-						break; }
-					case TokenType::IDENTIFIER: {
-						Information* information = this->symboltable.insert(actual_lexem);
-						token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), information->type, information));
-						this->file_position.increment_column(actual_lexem.size());
-						break; }
-					default: {
-						token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), token_type));
-						this->file_position.increment_column(actual_lexem.size()); }
-					}
+                        switch(token_type) {
+                        case TokenType::COMMENT: {
+                            long last_line_length = std::distance(actual_lexem.find_last_of("\r\n"), actual_lexem.cend()) - 1;
+                            this->file_position.increment_column(last_line_length == -1 ? actual_lexem.size() : last_line_length);
+                            break; }
+                        case TokenType::INTEGER: {
+                            token = this->make_integer_token(actual_lexem);
+                            this->file_position.increment_column(actual_lexem.size());
+                            break; }
+                        case TokenType::IDENTIFIER: {
+                            Information* information = this->symboltable.insert(actual_lexem);
+                            token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), information->token_type, information));
+                            this->file_position.increment_column(actual_lexem.size());
+                            break; }
+                        default: {
+                            token = &(this->token = Token(this->file_position.get_line(), this->file_position.get_column(), token_type));
+                            this->file_position.increment_column(actual_lexem.size()); }
+                        }
 
-				}
-			}
+                    }
+                }
 
-			this->lexem.clear();
-			this->finite_state_machine.reset();
+                this->lexem.clear();
+                this->finite_state_machine.reset();
 
-			if (token) {
-				return *token;
-			}
+                if (token) {
+                    return *token;
+                }
+            }
+		} catch(const UnsupportedCharacterEncodingException& encoding_exception) {
+		    this->file_position.increment_column(1);
+		    this->lexem = String(this->lexem.cbegin(), this->lexem.cend() - 1);
+		    throw;
 		}
 	}
 

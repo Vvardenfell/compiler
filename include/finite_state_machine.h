@@ -87,11 +87,11 @@ public:
 	}
 
 	void operator()(Direction direction, char symbol) const {
-		this->callback(direction, symbol);		
+		this->callback(direction, symbol);
 	}
 };
 
-enum class TransitionType {
+enum class TransitionType : unsigned char {
 	CHAR,
 	TYPE
 };

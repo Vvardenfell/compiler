@@ -1,4 +1,4 @@
-SRCS = finite_state_machine.cpp buffer.cpp scanner.cpp file_position.cpp token.cpp string.cpp main.cpp
+SRCS = finite_state_machine.cpp buffer.cpp scanner.cpp file_position.cpp token.cpp string.cpp grammar.cpp parser.cpp type_check.cpp make_code.cpp information.cpp main.cpp
 EXEC = foobar
 
 CPPFLAGS = -Iinclude

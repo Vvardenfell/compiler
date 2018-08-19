@@ -1,9 +1,62 @@
 #include "token.h"
 #include "exception.h"
 #include <ostream>
+#include <climits>
+#include <cstdio>
 
-std::ostream& operator<<(std::ostream& out, TokenType type) {
-	switch(type) {
+String Token::to_string() const {
+
+    switch(this->token_type) {
+
+    case TokenType::PLUS: return String("+", 1);
+    case TokenType::MINUS: return String("-", 1);
+    case TokenType::COLON: return String(":", 1);
+    case TokenType::ASTERISK: return String("*", 1);
+    case TokenType::LESS_THAN: return String("<", 1);
+    case TokenType::GREATER_THAN: return String(">", 1);
+    case TokenType::EQUALITY: return String("=", 1);
+    case TokenType::ASSIGNMENT: return String(":=", 2);
+    case TokenType::WHATEVER: return String("=:=", 3);
+    case TokenType::NOT: return String("!", 1);
+    case TokenType::LOGICAL_AND: return String("&&", 2);
+    case TokenType::SEMICOLON: return String(";", 1);
+    case TokenType::PARENTHESIS_OPEN: return String("(", 1);
+    case TokenType::PARENTHESIS_CLOSE: return String(")", 1);
+    case TokenType::CURLY_BRACKET_OPEN: return String("{", 1);
+    case TokenType::CURLY_BRACKET_CLOSE: return String("}", 1);
+    case TokenType::SQUARE_BRACKET_OPEN: return String("[", 1);
+    case TokenType::SQUARE_BRACKET_CLOSE: return String("]", 1);
+    case TokenType::IF: return String("if", 2);
+    case TokenType::ELSE: return String("else", 4);
+    case TokenType::WHILE: return String("while", 5);
+    case TokenType::READ: return String("read", 4);
+    case TokenType::WRITE: return String("write", 5);
+    case TokenType::INT: return String("int", 3);
+    case TokenType::LINE_FEED: return String("\n", 1);
+    case TokenType::EPSILON: return String();
+    case TokenType::INTEGER: {
+        const static std::size_t INTEGER_BITS = sizeof(long) * CHAR_BIT;
+        const static std::size_t BITS_PER_DECIMAL_DIGIT = 3;
+        const static std::size_t INTEGER_MEMORY_REQUIREMENT = (INTEGER_BITS / BITS_PER_DECIMAL_DIGIT) + 3;
+        static char integer_storage[INTEGER_MEMORY_REQUIREMENT];
+
+        std::snprintf(integer_storage, INTEGER_MEMORY_REQUIREMENT, "%li", this->value.integer);
+
+        return String(integer_storage);
+    }
+	case TokenType::DEADBEEF:
+        return String(&(this->value.error_char), 1);
+	case TokenType::IDENTIFIER:
+	case TokenType::OUT_OF_RANGE_INTEGER:
+    case TokenType::COMMENT:
+		return *(this->value.information->lexem);
+	default: throw UnsupportedTokenTypeException("Token::to_string() const", this->token_type);
+    }
+}
+
+
+std::ostream& operator<<(std::ostream& out, TokenType token_type) {
+	switch(token_type) {
 	case TokenType::DEADBEEF: return out.write("DEADBEEF", 8);
 	case TokenType::PLUS: return out.write("PLUS", 4);
 	case TokenType::MINUS: return out.write("MINUS", 5);
@@ -34,16 +87,17 @@ std::ostream& operator<<(std::ostream& out, TokenType type) {
 	case TokenType::INT: return out.write("INT", 3);
 	case TokenType::COMMENT: return out.write("COMMENT", 7);
 	case TokenType::LINE_FEED: return out.write("LINE_FEED", 9);
-	default: throw UnsupportedTokenTypeException("operator<<(std::ostream& out, TokenType type)", type);
+	case TokenType::EPSILON: return out.write("EPSILON", 7);
+	default: throw UnsupportedTokenTypeException("operator<<(std::ostream& out, TokenType token_type)", token_type);
 	}
 }
 
 std::ostream& operator<<(std::ostream& out, const Token& token) {
 	out << token.line << ':' << token.column;
 	out.write(": ", 2);
-	out << token.type;
+	out << token.token_type;
 
-	switch(token.type) {
+	switch(token.token_type) {
 	case TokenType::INTEGER:
 		out << ' ' << token.value.integer;
 		break;
@@ -56,7 +110,8 @@ std::ostream& operator<<(std::ostream& out, const Token& token) {
 
 		const Information& information = *token.value.information;
 		out.write((information.lexem)->c_str(), (information.lexem)->size());
-		break; }
+		break;
+    }
 	default: { /* pass - don't handle other TokenTypes in a special way */ }
 	}
 
