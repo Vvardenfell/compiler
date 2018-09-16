@@ -162,6 +162,15 @@ public:
 		return target;
 	}
 
+    void erase(iterator object) {
+        for(iterator end = this->end(); ++object != end;) {
+            *(object - 1) = std::move(*object);
+        }
+
+        (*(object - 1)).~value_type();
+        --this->next_free_space;
+    }
+
 	std::size_t capacity() const {
 		return this->end_free_space - this->objects;
 	}

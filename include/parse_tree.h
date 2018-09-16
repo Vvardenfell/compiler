@@ -2,6 +2,10 @@
 #define PARSE_TREE_H
 
 #include "vector.h"
+#include <utility>
+#include <type_traits>
+#include <algorithm>
+
 
 template<typename T> class ParseTree {
 public:
@@ -9,7 +13,6 @@ public:
     class Node {
     private:
 
-        friend class Vector<Node>;
         friend class ParseTree;
 
         enum class StorageType : unsigned char {
@@ -22,10 +25,9 @@ public:
 
             Storage() {}
             ~Storage() {}
-            Storage(const Storage&) {}
         } userdata_storage;
         Vector<Node> children;
-        Node* const parent_node;
+        Node* parent_node;
         Node::StorageType storage_type;
         FundamentalType data_type;
 
@@ -50,12 +52,74 @@ public:
         }
 
 
+        static void swap_userdata(Storage& left, Storage& right) {
+            if(left.storage_type == StorageType::USERDATA && right.storage_type == StorageType::USERDATA) {
+                T tmp(std::move(left.userdata));
+                left.userdata.~T();
+                new (&left.userdata) T(std::move(right.userdata));
+                right.userdata.~T();
+                new (&right.userdata) T(std::move(tmp));
+            }
+            else if(left.storage_type == StorageType::USERDATA) {
+                new (&right.userdata) T(std::move(left.userdata));
+                left.userdata.~T();
+            }
+            else if(right.storage_type == StorageType::USERDATA) {
+                new (&left.userdata) T(std::move(right.userdata));
+                right.userdata.~T();
+            }
+        }
+
+        static void swap(Node& left, Node& right) {
+            using std::swap;
+
+            swap_userdata(left.userdata_storage, right.userdata_storage);
+            swap(left.children, right.children);
+            swap(left.parent_node, right.parent_node);
+            swap(left.storage_type, right.storage_type);
+            swap(left.data_type, right.data_type);
+        }
+
+
     public:
 
         Node(const Node& source) : userdata_storage(), children(source.children), parent_node(source.parent_node), storage_type(source.storage_type), data_type(source.data_type) {
             if(this->storage_type == Node::StorageType::USERDATA) {
                 new (&(this->userdata_storage.userdata)) T(source.userdata_storage.userdata);
             }
+
+            for(Node& child : this->children) child.parent_node = this;
+        }
+
+
+        Node(const Node&& source) : userdata_storage(), children(std::move(source.children)), parent_node(source.parent_node), storage_type(source.storage_type), data_type(source.data_type) {
+            if(this->storage_type == Node::StorageType::USERDATA) {
+                new (&(this->userdata_storage.userdata)) T(std::move(source.userdata_storage.userdata));
+            }
+
+            for(Node& child : this->children) child.parent_node = this;
+        }
+
+
+        Node& operator=(const Node& source) {
+            Node tmp(source);
+            Node* parent = this->parent_node;
+
+            swap(*this, tmp);
+            this->parent_node = parent;
+
+            return *this;
+        }
+
+
+        Node& operator=(Node&& source) {
+            Node tmp(source);
+            Node* parent = this->parent_node;
+
+            swap(*this, tmp);
+            this->parent_node = parent;
+
+            return *this;
         }
 
 
@@ -65,7 +129,7 @@ public:
 
 
         template<typename... Args> Node& create_child(Args&&... userdata_args) {
-            this->children.emplace_back(this, std::forward<Args>(userdata_args)...);
+            this->children.push_back(Node(this, std::forward<Args>(userdata_args)...));
             return *(this->children.end() - 1);
         }
 
@@ -139,5 +203,6 @@ public:
         return this->root_node;
     }
 };
+
 
 #endif // PARSE_TREE_H

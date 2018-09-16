@@ -44,13 +44,19 @@ String Token::to_string() const {
 
         return String(integer_storage);
     }
-	case TokenType::DEADBEEF:
-        return String(&(this->value.error_char), 1);
-	case TokenType::IDENTIFIER:
-	case TokenType::OUT_OF_RANGE_INTEGER:
+    case TokenType::DEADBEEF:
+	const static std::size_t BITS_PER_DECIMAL_DIGIT = 3;
+	const static std::size_t CHAR_MEMORY_REQUIREMENT = (CHAR_BIT / BITS_PER_DECIMAL_DIGIT) + 3;
+	static char char_storage[CHAR_MEMORY_REQUIREMENT];
+
+	std::snprintf(char_storage, CHAR_MEMORY_REQUIREMENT, "%u", static_cast<unsigned int>(static_cast<unsigned char>(this->value.error_char)));
+
+        return String(char_storage);
+    case TokenType::IDENTIFIER:
+    case TokenType::OUT_OF_RANGE_INTEGER:
     case TokenType::COMMENT:
-		return *(this->value.information->lexem);
-	default: throw UnsupportedTokenTypeException("Token::to_string() const", this->token_type);
+        return *(this->value.information->lexem);
+    default: throw UnsupportedTokenTypeException("Token::to_string() const", this->token_type);
     }
 }
 
@@ -102,7 +108,7 @@ std::ostream& operator<<(std::ostream& out, const Token& token) {
 		out << ' ' << token.value.integer;
 		break;
 	case TokenType::DEADBEEF:
-		out << ' ' << token.value.error_char;
+		out << " '" << static_cast<unsigned int>(static_cast<unsigned char>(token.value.error_char)) << '\'';
 		break;
 	case TokenType::IDENTIFIER:
 	case TokenType::OUT_OF_RANGE_INTEGER: {

@@ -24,7 +24,7 @@ void parse(Scanner* scanner, Parser* parser, bool* is_scan_valid) {
             Token token(scanner->next_token());
 
             if(token.get_token_type() == TokenType::DEADBEEF) {
-                std::cerr << token << " - Unexpected character";
+                std::cerr << token << " - Unexpected character\n";
                 *is_scan_valid = false;
             }
             else parser->process(token);
@@ -63,15 +63,16 @@ int main(int argc, char* argv[]) {
 		Scanner scanner(argv[1]);
 		bool is_scan_valid = true;
 
-		std::ofstream out(argv[2], std::ofstream::out | std::ofstream::trunc);
-		if (!out.is_open()) throw OutputFileFailureException(argv[2]);
-
 		try {
             parse(&scanner, &parser, &is_scan_valid);
 		} catch(const BufferBoundsExceededException& end_of_file) {
 
             if(check_types(&parser) && is_scan_valid) {
                 std::cout << "\nGenerating code..." << std::endl;
+
+                std::ofstream out(argv[2], std::ofstream::out | std::ofstream::trunc);
+                if (!out.is_open()) throw OutputFileFailureException(argv[2]);
+
                 MakeCode(&parser.parse_tree(), &out)();
 		    }
 		}

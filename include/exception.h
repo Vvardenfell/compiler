@@ -43,7 +43,7 @@ public:
 
 class UnsupportedCharacterEncodingException : public ParserException {
 public:
-	UnsupportedCharacterEncodingException(const std::string& occurrence, const std::string& requested_encoding, char invalid_value) : ParserException(occurrence + std::string(" detected an unsupported encoding, when processing '") + invalid_value + std::string("'. The required encoding is ") + requested_encoding) {}
+	UnsupportedCharacterEncodingException(const std::string& occurrence, const std::string& requested_encoding, char invalid_value) : ParserException(occurrence + std::string(" detected an unsupported encoding, when processing '") + std::to_string(static_cast<unsigned int>(static_cast<unsigned char>(invalid_value))) + std::string("'. The required encoding is ") + requested_encoding) {}
 };
 
 class CommandLineMissingArgumentsException : public ParserException {
@@ -97,6 +97,11 @@ public:
 class UnsupportedFundamentalTypeException : public ParserException {
 public:
 	UnsupportedFundamentalTypeException(const std::string& occurrence, FundamentalType type) : ParserException(std::string("FundamentalType with value ") + std::to_string(static_cast<unsigned int>(type)) + std::string(" not supported in ") + occurrence) {}
+};
+
+class LabelsExhaustedException : public ParserException {
+public:
+    LabelsExhaustedException(const std::string& occurrence) : ParserException(std::string("Maximum amount of labels to be generated reached in ") + occurrence) {}
 };
 
 #endif /* EXCEPTION_H */

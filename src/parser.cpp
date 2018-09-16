@@ -6,27 +6,27 @@ Parser::TreeData::~TreeData() {
 }
 
 
-bool  Parser::TreeData::is_token() const {
+bool Parser::TreeData::is_token() const {
     return this->type == TreeData::Type::TOKEN;
 }
 
 
-bool  Parser::TreeData::is_variable() const {
+bool Parser::TreeData::is_variable() const {
     return this->type == TreeData::Type::VARIABLE;
 }
 
 
-Token&  Parser::TreeData::token() {
+Token& Parser::TreeData::token() {
     return this->data.token;
 }
 
 
-const Token&  Parser::TreeData::token() const {
+const Token& Parser::TreeData::token() const {
     return this->data.token;
 }
 
 
-Grammar::Variable  Parser::TreeData::variable() const {
+Grammar::Variable Parser::TreeData::variable() const {
     return this->data.variable;
 }
 
@@ -114,11 +114,15 @@ bool Parser::has_rule(const Grammar::Value& value, TokenType type) const {
 }
 
 
-void Parser::stack_push_rule(Grammar::Variable variable, TokenType type) {
+bool Parser::stack_push_rule(Grammar::Variable variable, TokenType type) {
     cell_type lookup_table_index = this->branch_matrix.get(static_cast<std::size_t>(type), static_cast<std::size_t>(variable));
     const Vector<Grammar::Value>& production = this->lookup_table[lookup_table_index];
 
-    if(type != TokenType::EPSILON || production.size() != 0) this->stack.push_back(production);
+    if(type != TokenType::EPSILON || production.size() != 0) {
+        this->stack.push_back(production);
+        return true;
+    }
+    return false;	
 }
 
 
@@ -246,7 +250,11 @@ bool Parser::process(const Token& token) {
         else if(this->has_rule(stack_value, type)) {
             Grammar::Value value = this->stack_rule_pop();
             this->active_node = &(this->active_node->create_child(value.variable()));
-            this->stack_push_rule(value.variable(), type);
+
+            if (!this->stack_push_rule(value.variable(), type) && this->stack_peek().size()) {
+                this->active_node = &(this->active_node->parent());
+		return true;
+            }
         }
         else {
             this->handle_unexpected_token(token);

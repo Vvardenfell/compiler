@@ -1,6 +1,7 @@
 #ifndef BINARY_GRAVEYARD_H
 #define BINARY_GRAVEYARD_H
 
+#include <iterator>
 #include "vector.h"
 
 template<typename T> class BinaryGraveyard;

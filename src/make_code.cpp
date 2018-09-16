@@ -1,4 +1,5 @@
 #include "make_code.h"
+#include "exception.h"
 #include <cstdio>
 #include <cinttypes>
 
@@ -27,6 +28,8 @@ String MakeCode::generate_label() const {
 
     static std::uint32_t label_id = 0;
     std::snprintf(label_storage + LABEL_PREFIX_LENGTH, LABEL_MEMORY_REQUIREMENT, "%" PRIu32, label_id++);
+
+    if(!label_id) throw LabelsExhaustedException("MakeCode::generate_label() const");
 
     return String(label_storage);
 }

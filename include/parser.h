@@ -71,7 +71,7 @@ private:
     void cleanup_stack();
 
     bool has_rule(const Grammar::Value& value, TokenType type) const;
-    void stack_push_rule(Grammar::Variable variable, TokenType type);
+    bool stack_push_rule(Grammar::Variable variable, TokenType type);
 
     void handle_unexpected_token(const Token& token, bool force = false);
     Vector<TokenType> gather_expected_token() const;
