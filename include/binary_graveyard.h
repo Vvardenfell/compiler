@@ -136,8 +136,8 @@ public:
 
 	BinaryGraveyard(const BinaryGraveyard<value_type>& source) : graveyard(source.graveyard), next_free_space(nullptr), end_free_space(nullptr) {
 		if (source.graveyard.size() > 0) {
-			void* source_grave_begin = &*(source.graveyard.end() - 1);
-			void* this_grave_begin = &*(this->graveyard.end() - 1);
+			char* source_grave_begin = static_cast<char*>(&*(source.graveyard.cend() - 1));
+			char* this_grave_begin = static_cast<char*>(&*(this->graveyard.cend() - 1));
 
 			this->next_free_space = this_grave_begin + std::distance(source_grave_begin, source.next_free_space);
 			this->end_free_space = this_grave_begin + std::distance(source_grave_begin, source.end_free_space);

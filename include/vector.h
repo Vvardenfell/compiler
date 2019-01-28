@@ -6,6 +6,7 @@
 #include <iterator>
 #include <algorithm>
 #include <type_traits>
+#include <memory>
 
 template<typename T> class Vector;
 
